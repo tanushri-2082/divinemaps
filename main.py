@@ -1,4 +1,5 @@
 # main.py
+import mysql.connector
 import i18n
 from kivy.app import App
 from kivy.lang import Builder

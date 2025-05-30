@@ -7,6 +7,7 @@ def fetch_all_sites():
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM sites")
     sites = cursor.fetchall()
+    print(sites)
     conn.close()
     return sites
 
