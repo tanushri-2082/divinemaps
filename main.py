@@ -5,11 +5,17 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 import hashlib
 
-from app.data_manager import fetch_all_sites, register_user
+from app.data_manager import (
+    fetch_all_sites,
+    register_user,
+    get_user_by_email,    # ← newly imported
+    update_password       # ← newly imported
+)
 
-# Load all KV files, including the new signup.kv
+# Load all KV files
 Builder.load_file('ui/home.kv')
-Builder.load_file('ui/signup.kv')    # ← new signup layout
+Builder.load_file('ui/signup.kv')
+Builder.load_file('ui/forgot.kv')   # ← load the new forgot screen
 Builder.load_file('ui/map.kv')
 Builder.load_file('ui/details.kv')
 Builder.load_file('ui/admin.kv')
@@ -22,18 +28,16 @@ class HomeScreen(Screen):
 
     def do_login(self, username, password):
         print(f"Logging in with {username}:{password}")
-        # TODO: Validate with database + navigate
+        # TODO: Validate with database and navigate
 
     def go_to_signup(self):
-        # Switch to the 'signup' screen
         self.manager.current = 'signup'
 
     def go_to_forgot(self):
-        print("Navigating to forgot password screen")
+        self.manager.current = 'forgot'
 
     def continue_as_guest(self):
         print("Continuing as guest")
-        # TODO: Navigate as guest
 
     def open_terms(self):
         print("Opening terms and conditions")
@@ -43,27 +47,15 @@ class HomeScreen(Screen):
 
 
 class SignUpScreen(Screen):
-    """
-    This screen has exactly 4 fields:
-      - username_input
-      - email_input
-      - password_input
-      - confirm_password_input
-
-    And a 'SIGN UP' button that calls `on_signup_button()`.
-    """
-
     def go_back(self):
         self.manager.current = 'home'
 
     def on_signup_button(self):
-        # 1) Grab the text from each TextInput
         username = self.ids.username_input.text.strip()
         email = self.ids.email_input.text.strip()
         password = self.ids.password_input.text
         confirm_password = self.ids.confirm_password_input.text
 
-        # 2) Basic validation
         if not (username and email and password and confirm_password):
             print("[Error] All fields are required.")
             return
@@ -76,24 +68,69 @@ class SignUpScreen(Screen):
             print("[Error] Password must be at least 6 characters.")
             return
 
-        # 3) Hash the password (sha256 for example)
         pw_hash = hashlib.sha256(password.encode()).hexdigest()
-
-        # 4) Call register_user(username, email, pw_hash)
         result = register_user(username, email, pw_hash)
         if result.get("success"):
             new_id = result["user_id"]
             print(f"[Success] Registered new user with ID: {new_id}")
-            # Navigate back to Home screen (or auto-login if you wish)
             self.manager.current = 'home'
         else:
             print(f"[Error] Could not register: {result.get('error')}")
 
 
+class ForgotPasswordScreen(Screen):
+    """
+    The ForgotPasswordScreen has three TextInput fields:
+      - email_input
+      - new_password_input
+      - confirm_new_password_input
+
+    And two buttons:
+      - “← Back” (calls go_back())
+      - “Reset Password” (calls on_reset_button())
+    """
+    def go_back(self):
+        self.manager.current = 'home'
+
+    def on_reset_button(self):
+        email = self.ids.email_input.text.strip()
+        new_password = self.ids.new_password_input.text
+        confirm_new_password = self.ids.confirm_new_password_input.text
+
+        if not (email and new_password and confirm_new_password):
+            print("[Error] All fields are required.")
+            return
+
+        if new_password != confirm_new_password:
+            print("[Error] Passwords do not match.")
+            return
+
+        if len(new_password) < 6:
+            print("[Error] Password must be at least 6 characters.")
+            return
+
+        # 1) Check if the email is registered:
+        user = get_user_by_email(email)
+        if not user:
+            print("[Error] Email not found.")
+            return
+
+        # 2) Hash the new password:
+        new_hash = hashlib.sha256(new_password.encode()).hexdigest()
+
+        # 3) Update the password in the database:
+        result = update_password(email, new_hash)
+        if result.get("success"):
+            print("[Success] Password updated successfully.")
+            self.manager.current = 'home'
+        else:
+            print(f"[Error] Could not update password: {result.get('error')}")
+
+
 class DivineMapsApp(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.i18n = {'locale': 'en'}  # default language
+        self.i18n = {'locale': 'en'}
         self.translations = self.load_translations()
 
     def load_translations(self):
@@ -155,6 +192,7 @@ class DivineMapsApp(App):
         sm = ScreenManager()
         sm.add_widget(HomeScreen(name='home'))
         sm.add_widget(SignUpScreen(name='signup'))
+        sm.add_widget(ForgotPasswordScreen(name='forgot'))  # ← add forgot screen
         return sm
 
 
