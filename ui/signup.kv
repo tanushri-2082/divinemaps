@@ -3,7 +3,7 @@
 <SignUpScreen>:
     name: 'signup'
 
-    ## ─── BACKGROUND + PURPLE OVERLAY ───────────────────────────────────
+
     canvas.before:
         # 1) White background
         Color:
@@ -12,30 +12,25 @@
             pos: self.pos
             size: self.size
 
-        # 2) Semi-transparent purple overlay on top of the white
-        Color:
-            rgba: 0.3, 0.0, 0.2, 0.7
-        Rectangle:
-            pos: self.pos
-            size: self.size
 
-    ## ─── OPTIONAL: SAME BG IMAGE AS HOME SCREEN (UNCOMMENT IF DESIRED) ────
-    # Image:
-    #     source: 'data/bg.jpg'
-    #     allow_stretch: True
-    #     keep_ratio: False
-    #     opacity: 0.2
-    #     size: root.size
-    #     pos: root.pos
+    FloatLayout:
+        # 1) Background Image (faded temple silhouette)
+        Image:
+            source: 'data/bg.jpg'
+            allow_stretch: True
+            keep_ratio: False
+            opacity: 0.3
+            size: root.size
+            pos: root.pos
 
     ## ─── “← Back” BUTTON AT TOP-LEFT ─────────────────────────────────────
     Button:
-        text: "← Back"
+        text: "Back"
         size_hint: None, None
         size: dp(80), dp(30)
         pos_hint: {'x':0.02, 'top':0.98}
         background_normal: ''
-        background_color: [0.9, 0.2, 0.7, 1]   # hot-pink, to match theme
+        background_color: [0.9, 0.5, 0.2, 1]
         color: [1, 1, 1, 1]
         font_size: '14sp'
         radius: [dp(10),]
@@ -56,7 +51,7 @@
             text: "SIGN UP"
             font_size: '32sp'
             bold: True
-            color: [1, 1, 1, 1]
+            color:[0.2, 0.2, 0.2, 1]
             size_hint_y: None
             height: self.texture_size[1]
             halign: 'center'
@@ -113,14 +108,14 @@
             background_color: [1, 1, 1, 1]
             foreground_color: [0, 0, 0, 1]
 
-        # ─── SIGN UP Button (Hot Pink) ───────────────────────────
+        # ─── SIGN UP Button ───────────────────────────
         Button:
             text: "SIGN UP"
             size_hint_y: None
             height: dp(50)
             on_release: root.on_signup_button()
             background_normal: ''
-            background_color: [0.9, 0.2, 0.7, 1]
+            background_color: [0.9, 0.5, 0.2, 1]
             color: [1, 1, 1, 1]
             font_size: '18sp'
             radius: [dp(10),]
