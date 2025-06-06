@@ -8,14 +8,14 @@ import hashlib
 from app.data_manager import (
     fetch_all_sites,
     register_user,
-    get_user_by_email,    # ← newly imported
-    update_password       # ← newly imported
+    get_user_by_email,
+    update_password
 )
 
 # Load all KV files
 Builder.load_file('ui/home.kv')
 Builder.load_file('ui/signup.kv')
-Builder.load_file('ui/forgot.kv')   # ← load the new forgot screen
+Builder.load_file('ui/forgot.kv')
 Builder.load_file('ui/map.kv')
 Builder.load_file('ui/details.kv')
 Builder.load_file('ui/admin.kv')
@@ -24,11 +24,94 @@ Builder.load_file('ui/admin.kv')
 class HomeScreen(Screen):
     def on_pre_enter(self):
         self.sites = fetch_all_sites()
+        self.update_translations()  # refresh text + font
         print("Loaded sites:", self.sites)
+
+    def update_translations(self):
+        """
+        Called whenever the locale changes (or when HomeScreen appears).
+        Re‐sets each widget’s .text AND, if needed, .font_name based on app.i18n['locale'].
+        """
+        app = App.get_running_app()
+        lang = app.i18n['locale']
+
+        # Decide which font to use; None means “use default Kivy font” (no override)
+        if lang == 'hi':
+            chosen_font = 'data/fonts/NotoSansDevanagari-Regular.ttf'
+        elif lang == 'kn':
+            chosen_font = 'data/fonts/NotoSansKannada-Regular.ttf'
+        else:
+            chosen_font = None
+
+        # ─── Update each translatable widget’s text ─────────────────────────────────
+
+        # Title
+        self.ids.title_label.text = app.get_translations('Divine Maps')
+        if chosen_font:
+            self.ids.title_label.font_name = chosen_font
+
+        # Tagline
+        self.ids.tagline_label.text = app.get_translations('Spiritual Exploration Made Simple')
+        if chosen_font:
+            self.ids.tagline_label.font_name = chosen_font
+
+        # Username input (hint text)
+        self.ids.username_input.hint_text = app.get_translations('Enter username')
+        if chosen_font:
+            self.ids.username_input.font_name = chosen_font
+
+        # Password input (hint text)
+        self.ids.password_input.hint_text = app.get_translations('Enter password')
+        if chosen_font:
+            self.ids.password_input.font_name = chosen_font
+
+        # Login button
+        self.ids.login_button.text = app.get_translations('Login')
+        if chosen_font:
+            self.ids.login_button.font_name = chosen_font
+
+        # Sign Up link
+        self.ids.signup_label.text = "[ref=signup]" + app.get_translations('Sign Up') + "[/ref]"
+        if chosen_font:
+            self.ids.signup_label.font_name = chosen_font
+
+        # Forgot Password link
+        self.ids.forgot_label.text = "[ref=forgot]" + app.get_translations('Forgot Password') + "[/ref]"
+        if chosen_font:
+            self.ids.forgot_label.font_name = chosen_font
+
+        # Continue as Guest link
+        self.ids.guest_label.text = "[ref=guest]" + app.get_translations('Continue as Guest') + "[/ref]"
+        if chosen_font:
+            self.ids.guest_label.font_name = chosen_font
+
+        # Spiritual Quote
+        self.ids.quote_label.text = app.get_translations('Quote')
+        if chosen_font:
+            self.ids.quote_label.font_name = chosen_font
+
+        # Footer: Version
+        self.ids.version_label.text = app.get_translations('Version v1.0.0')
+        if chosen_font:
+            self.ids.version_label.font_name = chosen_font
+
+        # Footer: Terms | Privacy
+        self.ids.terms_label.text = (
+            "[ref=terms]" + app.get_translations('Terms') + "[/ref] | "
+            "[ref=privacy]" + app.get_translations('Privacy') + "[/ref]"
+        )
+        if chosen_font:
+            self.ids.terms_label.font_name = chosen_font
+
+        # Finally, update the Spinner’s displayed text so it still shows the selected locale.
+        self.ids.lang_selector.text = app.i18n['locale']
+        # (We usually do not change the Spinner’s font, but if you want it in Hindi/Kanada:)
+        if chosen_font:
+            self.ids.lang_selector.font_name = chosen_font
 
     def do_login(self, username, password):
         print(f"Logging in with {username}:{password}")
-        # TODO: Validate with database and navigate
+        # TODO: Validate + navigate
 
     def go_to_signup(self):
         self.manager.current = 'signup'
@@ -79,16 +162,6 @@ class SignUpScreen(Screen):
 
 
 class ForgotPasswordScreen(Screen):
-    """
-    The ForgotPasswordScreen has three TextInput fields:
-      - email_input
-      - new_password_input
-      - confirm_new_password_input
-
-    And two buttons:
-      - “← Back” (calls go_back())
-      - “Reset Password” (calls on_reset_button())
-    """
     def go_back(self):
         self.manager.current = 'home'
 
@@ -109,16 +182,12 @@ class ForgotPasswordScreen(Screen):
             print("[Error] Password must be at least 6 characters.")
             return
 
-        # 1) Check if the email is registered:
         user = get_user_by_email(email)
         if not user:
             print("[Error] Email not found.")
             return
 
-        # 2) Hash the new password:
         new_hash = hashlib.sha256(new_password.encode()).hexdigest()
-
-        # 3) Update the password in the database:
         result = update_password(email, new_hash)
         if result.get("success"):
             print("[Success] Password updated successfully.")
@@ -134,9 +203,6 @@ class DivineMapsApp(App):
         self.translations = self.load_translations()
 
     def load_translations(self):
-        """
-        (Your existing translation dictionary goes here; unchanged.)
-        """
         return {
             'en': {
                 'Divine Maps': 'Divine Maps',
@@ -192,7 +258,7 @@ class DivineMapsApp(App):
         sm = ScreenManager()
         sm.add_widget(HomeScreen(name='home'))
         sm.add_widget(SignUpScreen(name='signup'))
-        sm.add_widget(ForgotPasswordScreen(name='forgot'))  # ← add forgot screen
+        sm.add_widget(ForgotPasswordScreen(name='forgot'))
         return sm
 
 

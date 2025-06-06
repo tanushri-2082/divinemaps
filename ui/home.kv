@@ -1,4 +1,3 @@
-#:import NoTransition kivy.uix.screenmanager.NoTransition
 #:import dp kivy.metrics.dp
 
 <HomeScreen>:
@@ -37,6 +36,7 @@
 
             # Title & Tagline
             Label:
+                id: title_label
                 text: app.get_translations('Divine Maps')
                 font_size: '32sp'
                 bold: True
@@ -44,7 +44,9 @@
                 color: [0.2, 0.2, 0.2, 1]
                 size_hint_y: None
                 height: self.texture_size[1]
+
             Label:
+                id: tagline_label
                 text: app.get_translations('Spiritual Exploration Made Simple')
                 font_size: '18sp'
                 italic: True
@@ -62,30 +64,31 @@
                 height: dp(160)
 
                 TextInput:
-                    id: username
+                    id: username_input
                     hint_text: app.get_translations("Enter username")
                     size_hint_y: None
                     height: dp(40)
 
                 TextInput:
-                    id: password
+                    id: password_input
                     hint_text: app.get_translations("Enter password")
                     password: True
                     size_hint_y: None
                     height: dp(40)
 
                 Button:
+                    id: login_button
                     text: app.get_translations('Login')
                     size_hint_y: None
                     height: dp(50)
-                    on_release: root.do_login(username.text, password.text)
+                    on_release: root.do_login(username_input.text, password_input.text)
                     background_normal: ''
                     background_color: [0.9, 0.5, 0.2, 1]
                     color: [1, 1, 1, 1]
                     font_size: '18sp'
                     radius: [dp(10),]
 
-        # 4) Links: Sign Up / Forgot Password / Guest
+        # 4) Links: Sign Up / Forgot Password / Continue as Guest
         BoxLayout:
             orientation: 'horizontal'
             size_hint: .8, None
@@ -94,7 +97,8 @@
             spacing: dp(20)
 
             Label:
-                text: f"[ref=signup]{app.get_translations('Sign Up')}[/ref]"
+                id: signup_label
+                text: "[ref=signup]" + app.get_translations('Sign Up') + "[/ref]"
                 markup: True
                 font_size: '14sp'
                 halign: 'left'
@@ -102,7 +106,8 @@
                 on_ref_press: root.go_to_signup()
 
             Label:
-                text: f"[ref=forgot]{app.get_translations('Forgot Password')}[/ref]"
+                id: forgot_label
+                text: "[ref=forgot]" + app.get_translations('Forgot Password') + "[/ref]"
                 markup: True
                 font_size: '14sp'
                 halign: 'center'
@@ -110,7 +115,8 @@
                 on_ref_press: root.go_to_forgot()
 
             Label:
-                text: f"[ref=guest]{app.get_translations('Continue as Guest')}[/ref]"
+                id: guest_label
+                text: "[ref=guest]" + app.get_translations('Continue as Guest') + "[/ref]"
                 markup: True
                 font_size: '14sp'
                 halign: 'right'
@@ -119,6 +125,7 @@
 
         # 5) Spiritual Quote
         Label:
+            id: quote_label
             text: app.get_translations('Quote')
             font_size: '16sp'
             italic: True
@@ -138,7 +145,7 @@
             pos_hint: {'right': .98, 'top': .98}
             on_text:
                 app.i18n['locale'] = self.text
-                lang_selector.text = self.text  # Update the displayed text
+                root.update_translations()
 
         # 7) Footer: Version & Legal
         BoxLayout:
@@ -148,13 +155,15 @@
             spacing: dp(10)
 
             Label:
+                id: version_label
                 text: app.get_translations('Version v1.0.0')
                 font_size: '12sp'
                 color: [0.5, 0.5, 0.5, 1]
                 halign: 'left'
 
             Label:
-                text: f"[ref=terms]{app.get_translations('Terms')}[/ref] | [ref=privacy]{app.get_translations('Privacy')}[/ref]"
+                id: terms_label
+                text: "[ref=terms]" + app.get_translations('Terms') + "[/ref] | " + "[ref=privacy]" + app.get_translations('Privacy') + "[/ref]"
                 markup: True
                 font_size: '12sp'
                 color: [0.5, 0.5, 0.5, 1]
