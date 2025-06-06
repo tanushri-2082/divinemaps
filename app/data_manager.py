@@ -1,7 +1,7 @@
 # app/data_manager.py
 
 from app.db import get_connection
-from mysql.connector import Error
+from mysql.connector import Error, IntegrityError
 
 
 class DataManager:
@@ -35,22 +35,16 @@ class DataManager:
 
     @staticmethod
     def fetch_all_sites():
-        """Return a list of all religious sites (ordered by name)."""
         query = "SELECT * FROM sites ORDER BY name"
         return DataManager._execute_query(query)
 
     @staticmethod
     def fetch_site_by_id(site_id):
-        """Return details for a single site (by site_id)."""
         query = "SELECT * FROM sites WHERE site_id = %s"
         return DataManager._execute_query(query, (site_id,), fetch_one=True)
 
     @staticmethod
     def fetch_events_by_site(site_id):
-        """
-        Return all upcoming events for a given site.
-        (Only those with event_date >= current date, ordered chronologically.)
-        """
         query = """
         SELECT * FROM events
         WHERE site_id = %s
@@ -61,13 +55,11 @@ class DataManager:
 
     @staticmethod
     def fetch_images_by_site(site_id):
-        """Return all image records for a given site (primary images first)."""
         query = "SELECT * FROM images WHERE site_id = %s ORDER BY is_primary DESC, image_id"
         return DataManager._execute_query(query, (site_id,))
 
     @staticmethod
     def fetch_reviews_by_site(site_id, limit=None):
-        """Return all reviews for a given site, optionally limited."""
         query = """
         SELECT r.*, u.username
         FROM reviews r
@@ -81,26 +73,62 @@ class DataManager:
 
     @staticmethod
     def fetch_user(username):
-        """Return a user record by username (for login/auth)."""
         query = "SELECT * FROM users WHERE username = %s"
         return DataManager._execute_query(query, (username,), fetch_one=True)
 
     @staticmethod
     def validate_user_credentials(username, password):
         """
-        Validate user credentials and return user data (user_id, username)
-        if the username/password combination is correct. Otherwise return None.
+        If you are still storing a plain password (not hashed),
+        this method would be:
+          SELECT user_id, username FROM users
+            WHERE username=%s AND password_hash=%s
+        However, if you’re hashing with SHA-256, you’d compare
+        against the hash. In any case, adapt as needed.
         """
         query = """
-        SELECT user_id, username
+        SELECT user_id, username, role
         FROM users
-        WHERE username = %s
-          AND password = %s
+        WHERE username = %s AND password_hash = %s
         """
         return DataManager._execute_query(query, (username, password), fetch_one=True)
 
+    @staticmethod
+    def register_user(username, email, password_hash):
+        """
+        Insert a new row into users(username, email, password_hash, role).
+        We default role='user'. Return a dict:
+          { 'success': True, 'user_id': <new_id> }
+          or { 'success': False, 'error': <error_msg> }
+        """
+        insert_query = """
+            INSERT INTO users (username, email, password_hash, role)
+            VALUES (%s, %s, %s, 'user')
+        """
+        conn = None
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute(insert_query, (username, email, password_hash))
+            conn.commit()
+            new_id = cursor.lastrowid
+            return {"success": True, "user_id": new_id}
 
-# Expose the methods as module‐level functions
+        except IntegrityError as ie:
+            # Typically a duplicate‐username or duplicate‐email situation (UNIQUE constraint)
+            # We don’t expose raw SQL errors to the user; instead, return a friendly message:
+            return {"success": False, "error": "Username or Email already in use."}
+
+        except Error as e:
+            return {"success": False, "error": str(e)}
+
+        finally:
+            if conn and conn.is_connected():
+                cursor.close()
+                conn.close()
+
+
+# Expose the module‐level functions:
 fetch_all_sites = DataManager.fetch_all_sites
 fetch_site_by_id = DataManager.fetch_site_by_id
 fetch_events_by_site = DataManager.fetch_events_by_site
@@ -108,3 +136,4 @@ fetch_images_by_site = DataManager.fetch_images_by_site
 fetch_reviews_by_site = DataManager.fetch_reviews_by_site
 fetch_user = DataManager.fetch_user
 validate_user_credentials = DataManager.validate_user_credentials
+register_user = DataManager.register_user
