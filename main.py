@@ -42,10 +42,10 @@ class DivineMapsApp(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.i18n = {'locale': 'en'}  # Default language
-        self.translations = self.load_translations()  # Load all translations
+        self.translations = self.load_translations()
 
     def load_translations(self):
-        """Load translations from dictionary"""
+        """Load translations from a hard-coded dictionary."""
         return {
             'en': {
                 'Divine Maps': 'Divine Maps',
@@ -92,11 +92,11 @@ class DivineMapsApp(App):
         }
 
     def get_translations(self, key):
-        """Get translation for the current language"""
+        """Get a translated string for the current language (fallback to English)."""
         current_lang = self.i18n['locale']
-        # Try current language first, then English as fallback, then the key itself
         return self.translations.get(current_lang, {}).get(
-            key, self.translations.get('en', {}).get(key, key)
+            key,
+            self.translations.get('en', {}).get(key, key)
         )
 
     def build(self):
