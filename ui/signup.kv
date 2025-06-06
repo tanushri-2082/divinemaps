@@ -1,0 +1,126 @@
+#:import dp kivy.metrics.dp
+
+<SignUpScreen>:
+    name: 'signup'
+
+    ## ─── BACKGROUND + PURPLE OVERLAY ───────────────────────────────────
+    canvas.before:
+        # 1) White background
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+        # 2) Semi-transparent purple overlay on top of the white
+        Color:
+            rgba: 0.3, 0.0, 0.2, 0.7
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    ## ─── OPTIONAL: SAME BG IMAGE AS HOME SCREEN (UNCOMMENT IF DESIRED) ────
+    # Image:
+    #     source: 'data/bg.jpg'
+    #     allow_stretch: True
+    #     keep_ratio: False
+    #     opacity: 0.2
+    #     size: root.size
+    #     pos: root.pos
+
+    ## ─── “← Back” BUTTON AT TOP-LEFT ─────────────────────────────────────
+    Button:
+        text: "← Back"
+        size_hint: None, None
+        size: dp(80), dp(30)
+        pos_hint: {'x':0.02, 'top':0.98}
+        background_normal: ''
+        background_color: [0.9, 0.2, 0.7, 1]   # hot-pink, to match theme
+        color: [1, 1, 1, 1]
+        font_size: '14sp'
+        radius: [dp(10),]
+        on_release: root.go_back()
+
+    ## ─── FORM CONTENT BOX LAYOUT ─────────────────────────────────────────
+    BoxLayout:
+        orientation: 'vertical'
+        size_hint: .8, None
+        height: dp(350)
+        # Shift down a bit so it doesn’t overlap the Back button:
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        spacing: dp(12)
+        padding: [dp(20), dp(20)]
+
+        # ─── Title “SIGN UP” ───────────────────────────────────────
+        Label:
+            text: "SIGN UP"
+            font_size: '32sp'
+            bold: True
+            color: [1, 1, 1, 1]
+            size_hint_y: None
+            height: self.texture_size[1]
+            halign: 'center'
+            valign: 'middle'
+
+        # ─── Username ────────────────────────────────────────────
+        TextInput:
+            id: username_input
+            hint_text: "Username"
+            size_hint_y: None
+            height: dp(40)
+            multiline: False
+            padding: [dp(10), dp(10)]
+            background_normal: ''
+            background_color: [1, 1, 1, 1]
+            foreground_color: [0, 0, 0, 1]
+
+        # ─── Email ───────────────────────────────────────────────
+        TextInput:
+            id: email_input
+            hint_text: "Email"
+            size_hint_y: None
+            height: dp(40)
+            multiline: False
+            input_type: 'text'
+            padding: [dp(10), dp(10)]
+            background_normal: ''
+            background_color: [1, 1, 1, 1]
+            foreground_color: [0, 0, 0, 1]
+
+        # ─── Password ───────────────────────────────────────────
+        TextInput:
+            id: password_input
+            hint_text: "Password"
+            password: True
+            size_hint_y: None
+            height: dp(40)
+            multiline: False
+            padding: [dp(10), dp(10)]
+            background_normal: ''
+            background_color: [1, 1, 1, 1]
+            foreground_color: [0, 0, 0, 1]
+
+        # ─── Confirm Password ───────────────────────────────────
+        TextInput:
+            id: confirm_password_input
+            hint_text: "Confirm Password"
+            password: True
+            size_hint_y: None
+            height: dp(40)
+            multiline: False
+            padding: [dp(10), dp(10)]
+            background_normal: ''
+            background_color: [1, 1, 1, 1]
+            foreground_color: [0, 0, 0, 1]
+
+        # ─── SIGN UP Button (Hot Pink) ───────────────────────────
+        Button:
+            text: "SIGN UP"
+            size_hint_y: None
+            height: dp(50)
+            on_release: root.on_signup_button()
+            background_normal: ''
+            background_color: [0.9, 0.2, 0.7, 1]
+            color: [1, 1, 1, 1]
+            font_size: '18sp'
+            radius: [dp(10),]

@@ -52,6 +52,10 @@ class SignUpScreen(Screen):
 
     And a 'SIGN UP' button that calls `on_signup_button()`.
     """
+
+    def go_back(self):
+        self.manager.current = 'home'
+
     def on_signup_button(self):
         # 1) Grab the text from each TextInput
         username = self.ids.username_input.text.strip()
