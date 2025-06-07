@@ -29,91 +29,59 @@ class HomeScreen(Screen):
         print("Loaded sites:", self.sites)
 
     def update_translations(self):
-        """
-        Called whenever the locale changes (or when HomeScreen appears).
-        Re‐sets each widget’s .text AND, if needed, .font_name based on app.i18n['locale'].
-        """
         app = App.get_running_app()
         lang = app.i18n['locale']
-        self.ids.lang_selector.text = app.i18n['locale']
-        # Decide which font to use; None means “use default Kivy font” (no override)
-        if lang == 'hi':
-            chosen_font = 'data/fonts/NotoSansDevanagari-Regular.ttf'
-        elif lang == 'kn':
-            chosen_font = 'data/fonts/NotoSansKannada-Regular.ttf'
-        else:
-            chosen_font = resource_find('data/fonts/Roboto-Regular.ttf')
 
-        # ─── Update each translatable widget’s text ─────────────────────────────────
-        def apply_font(widget):
-            widget.font_name = chosen_font
-        # Title
-        self.ids.title_label.text = app.get_translations('Divine Maps')
-        if chosen_font:
-            self.ids.title_label.font_name = chosen_font
+        # ── 0) resolve all font paths ─────────────────────────────────────
+        hi_font = resource_find('data/fonts/NotoSansDevanagari-Regular.ttf')
+        kn_font = resource_find('data/fonts/NotoSansKannada-Regular.ttf')
+        en_font = resource_find('data/fonts/Roboto-Regular.ttf')
 
-        # Tagline
-        self.ids.tagline_label.text = app.get_translations('Spiritual Exploration Made Simple')
-        if chosen_font:
-            self.ids.tagline_label.font_name = chosen_font
+        # pick your “label” font by locale
+        label_font = {'hi': hi_font, 'kn': kn_font}.get(lang, en_font)
 
-        # Username input (hint text)
-        self.ids.username_input.hint_text = app.get_translations('Enter username')
-        if chosen_font:
-            self.ids.username_input.font_name = chosen_font
+        # ── 1) labels & buttons ───────────────────────────────────────
+        for wid_id, key in (
+                ('title_label', 'Divine Maps'),
+                ('tagline_label', 'Spiritual Exploration Made Simple'),
+                ('login_button', 'Login'),
+        ):
+            w = self.ids[wid_id]
+            w.text = app.get_translations(key)
+            w.font_name = label_font
 
-        # Password input (hint text)
-        self.ids.password_input.hint_text = app.get_translations('Enter password')
-        if chosen_font:
-            self.ids.password_input.font_name = chosen_font
+        # ── 2) the three “links” ──────────────────────────────────────
+        for wid_id, key in (
+                ('signup_label', 'Sign Up'),
+                ('forgot_label', 'Forgot Password'),
+                ('guest_label', 'Continue as Guest'),
+        ):
+            w = self.ids[wid_id]
+            w.text = f"[ref={wid_id}]{app.get_translations(key)}[/ref]"
+            w.font_name = label_font
 
-        # Login button
-        self.ids.login_button.text = app.get_translations('Login')
-        if chosen_font:
-            self.ids.login_button.font_name = chosen_font
-
-        # Sign Up link
-        self.ids.signup_label.text = "[ref=signup]" + app.get_translations('Sign Up') + "[/ref]"
-        if chosen_font:
-            self.ids.signup_label.font_name = chosen_font
-
-        # Forgot Password link
-        self.ids.forgot_label.text = "[ref=forgot]" + app.get_translations('Forgot Password') + "[/ref]"
-        if chosen_font:
-            self.ids.forgot_label.font_name = chosen_font
-
-        # Continue as Guest link
-        self.ids.guest_label.text = "[ref=guest]" + app.get_translations('Continue as Guest') + "[/ref]"
-        if chosen_font:
-            self.ids.guest_label.font_name = chosen_font
-
-        # Spiritual Quote
+        # ── 3) quote, version, terms/privacy ─────────────────────────
         self.ids.quote_label.text = app.get_translations('Quote')
-        if chosen_font:
-            self.ids.quote_label.font_name = chosen_font
-
-        # Footer: Version
         self.ids.version_label.text = app.get_translations('Version v1.0.0')
-        if chosen_font:
-            self.ids.version_label.font_name = chosen_font
-
-        # Footer: Terms | Privacy
         self.ids.terms_label.text = (
-            "[ref=terms]" + app.get_translations('Terms') + "[/ref] | "
-            "[ref=privacy]" + app.get_translations('Privacy') + "[/ref]"
+            f"[ref=terms]{app.get_translations('Terms')}[/ref] | "
+            f"[ref=privacy]{app.get_translations('Privacy')}[/ref]"
         )
-        if chosen_font:
-            self.ids.terms_label.font_name = chosen_font
+        for wid in ('quote_label', 'version_label', 'terms_label'):
+            self.ids[wid].font_name = label_font
 
-        # Finally, update the Spinner’s displayed text so it still shows the selected locale.
-        self.ids.lang_selector.text = app.i18n['locale']
+        # ── 4) TextInputs: set appropriate font depending on language ─────────────
         if lang == 'hi':
-            self.ids.lang_selector.font_name = 'data/fonts/NotoSansDevanagari-Regular.ttf'
+            input_font = hi_font
         elif lang == 'kn':
-            self.ids.lang_selector.font_name = 'data/fonts/NotoSansKannada-Regular.ttf'
+            input_font = kn_font
         else:
-            # Reset to default or English-compatible font
-            self.ids.lang_selector.font_name = 'data/fonts/Roboto-Regular.ttf'  # use your actual English font path
+            input_font = en_font
+
+        self.ids.username_input.hint_text = app.get_translations('Enter username')
+        self.ids.password_input.hint_text = app.get_translations('Enter password')
+        self.ids.username_input.font_name = input_font
+        self.ids.password_input.font_name = input_font
 
     def do_login(self, username, password):
         print(f"Logging in with {username}:{password}")
