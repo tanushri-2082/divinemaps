@@ -31,14 +31,14 @@
             Image:
                 source: 'data/logo.jpg'
                 size_hint: None, None
-                size: dp(150), dp(150)
+                size: dp(250), dp(250)
                 pos_hint: {'center_x': .5}
 
             # Title & Tagline
             Label:
                 id: title_label
                 text: app.get_translations('Divine Maps')
-                font_size: '32sp'
+                font_size: '70sp'
                 bold: True
                 halign: 'center'
                 color: [0.2, 0.2, 0.2, 1]
@@ -48,7 +48,7 @@
             Label:
                 id: tagline_label
                 text: app.get_translations('Spiritual Exploration Made Simple')
-                font_size: '18sp'
+                font_size: '20sp'
                 italic: True
                 halign: 'center'
                 color: [0.3, 0.3, 0.3, 1]
@@ -56,51 +56,54 @@
                 height: self.texture_size[1]
 
             # Login Form
-            BoxLayout:
-                orientation: 'vertical'
-                spacing: dp(10)
-                padding: [dp(20), dp(10)]
-                size_hint_y: None
-                height: dp(160)
+            AnchorLayout:
+                anchor_x: 'center'
+                anchor_y: 'center'
 
-                TextInput:
-                    id: username_input
-                    hint_text: app.get_translations("Enter username")
-                    size_hint_y: None
-                    height: dp(40)
+                BoxLayout:
+                    orientation: 'vertical'
+                    size_hint: None, None
+                    size: dp(400), dp(200)
+                    spacing: dp(6)
 
-                TextInput:
-                    id: password_input
-                    hint_text: app.get_translations("Enter password")
-                    password: True
-                    size_hint_y: None
-                    height: dp(40)
+                    TextInput:
+                        id: username_input
+                        hint_text: app.get_translations("Enter username")
+                        size_hint: 1, None
+                        height: dp(44)
 
-                Button:
-                    id: login_button
-                    text: app.get_translations('Login')
-                    size_hint_y: None
-                    height: dp(50)
-                    on_release: root.do_login(username_input.text, password_input.text)
-                    background_normal: ''
-                    background_color: [0.9, 0.5, 0.2, 1]
-                    color: [1, 1, 1, 1]
-                    font_size: '18sp'
-                    radius: [dp(10),]
+                    TextInput:
+                        id: password_input
+                        hint_text: app.get_translations("Enter password")
+                        password: True
+                        size_hint: 1, None
+                        height: dp(44)
+
+                    Button:
+                        id: login_button
+                        text: app.get_translations('Login')
+                        size_hint: 1, None
+                        height: dp(48)
+                        on_release: root.do_login(username_input.text, password_input.text)
+                        background_normal: ''
+                        background_color: [0.9, 0.5, 0.2, 1]
+                        color: [1, 1, 1, 1]
+                        font_size: '18sp'
+                        radius: [dp(10)]
 
         # 4) Links: Sign Up / Forgot Password / Continue as Guest
         BoxLayout:
             orientation: 'horizontal'
             size_hint: .8, None
             height: dp(30)
-            pos_hint: {'center_x': .5, 'y': .28}
+            pos_hint: {'center_x': .5, 'y': .20}
             spacing: dp(20)
 
             Label:
                 id: signup_label
                 text: "[ref=signup]" + app.get_translations('Sign Up') + "[/ref]"
                 markup: True
-                font_size: '14sp'
+                font_size: '18sp'
                 halign: 'left'
                 color: [0.2, 0.2, 0.2, 1]
                 on_ref_press: root.go_to_signup()
@@ -109,7 +112,7 @@
                 id: forgot_label
                 text: "[ref=forgot]" + app.get_translations('Forgot Password') + "[/ref]"
                 markup: True
-                font_size: '14sp'
+                font_size: '18sp'
                 halign: 'center'
                 color: [0.2, 0.2, 0.2, 1]
                 on_ref_press: root.go_to_forgot()
@@ -118,7 +121,7 @@
                 id: guest_label
                 text: "[ref=guest]" + app.get_translations('Continue as Guest') + "[/ref]"
                 markup: True
-                font_size: '14sp'
+                font_size: '18sp'
                 halign: 'right'
                 color: [0.2, 0.2, 0.2, 1]
                 on_ref_press: root.continue_as_guest()
@@ -127,13 +130,13 @@
         Label:
             id: quote_label
             text: app.get_translations('Quote')
-            font_size: '16sp'
+            font_size: '18sp'
             italic: True
             halign: 'center'
-            color: [0.4, 0.4, 0.4, 0.7]
+            color: [0.2, 0.2, 0.2, 0.7]
             size_hint: .8, None
             height: self.texture_size[1]
-            pos_hint: {'center_x': .5, 'y': .22}
+            pos_hint: {'center_x': .5, 'y': .10}
 
         # 6) Language Selector
         Spinner:
