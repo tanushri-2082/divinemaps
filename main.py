@@ -1,5 +1,6 @@
 # main.py
 
+from kivy.resources import resource_find
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -34,17 +35,18 @@ class HomeScreen(Screen):
         """
         app = App.get_running_app()
         lang = app.i18n['locale']
-
+        self.ids.lang_selector.text = app.i18n['locale']
         # Decide which font to use; None means “use default Kivy font” (no override)
         if lang == 'hi':
             chosen_font = 'data/fonts/NotoSansDevanagari-Regular.ttf'
         elif lang == 'kn':
             chosen_font = 'data/fonts/NotoSansKannada-Regular.ttf'
         else:
-            chosen_font = None
+            chosen_font = resource_find('data/fonts/Roboto-Regular.ttf')
 
         # ─── Update each translatable widget’s text ─────────────────────────────────
-
+        def apply_font(widget):
+            widget.font_name = chosen_font
         # Title
         self.ids.title_label.text = app.get_translations('Divine Maps')
         if chosen_font:
@@ -105,9 +107,13 @@ class HomeScreen(Screen):
 
         # Finally, update the Spinner’s displayed text so it still shows the selected locale.
         self.ids.lang_selector.text = app.i18n['locale']
-        # (We usually do not change the Spinner’s font, but if you want it in Hindi/Kanada:)
-        if chosen_font:
-            self.ids.lang_selector.font_name = chosen_font
+        if lang == 'hi':
+            self.ids.lang_selector.font_name = 'data/fonts/NotoSansDevanagari-Regular.ttf'
+        elif lang == 'kn':
+            self.ids.lang_selector.font_name = 'data/fonts/NotoSansKannada-Regular.ttf'
+        else:
+            # Reset to default or English-compatible font
+            self.ids.lang_selector.font_name = 'data/fonts/Roboto-Regular.ttf'  # use your actual English font path
 
     def do_login(self, username, password):
         print(f"Logging in with {username}:{password}")
