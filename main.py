@@ -20,7 +20,7 @@ Builder.load_file('ui/forgot.kv')
 Builder.load_file('ui/terms.kv')
 Builder.load_file('ui/privacy.kv')
 Builder.load_file('ui/map.kv')
-Builder.load_file('ui/details.kv')
+Builder.load_file('ui/guest.kv')
 Builder.load_file('ui/admin.kv')
 
 
@@ -96,6 +96,7 @@ class HomeScreen(Screen):
         self.manager.current = 'forgot'
 
     def continue_as_guest(self):
+        self.manager.current = 'guest'
         print("Continuing as guest")
 
     def open_terms(self):
@@ -113,7 +114,6 @@ class TermsScreen(Screen):
 class PrivacyScreen(Screen):
     def go_back(self):
         self.manager.current = 'home'
-
 
 class SignUpScreen(Screen):
     def go_back(self):
@@ -182,6 +182,33 @@ class ForgotPasswordScreen(Screen):
             print(f"[Error] Could not update password: {result.get('error')}")
 
 
+class GuestScreen(Screen):
+    def explore_as_guest(self):
+        # Set guest flag in app
+        app = App.get_running_app()
+        app.is_guest = True
+
+        # Navigate to map screen with guest restrictions
+        self.manager.current = 'map'
+
+        # Optional: Show toast message
+        from kivy.clock import Clock
+        from kivy.uix.popup import Popup
+        from kivy.uix.label import Label
+
+        popup = Popup(title='Guest Mode',
+                      content=Label(text='Exploring in guest mode with limited features'),
+                      size_hint=(0.7, 0.2))
+        popup.open()
+        Clock.schedule_once(lambda dt: popup.dismiss(), 2)
+
+    def go_to_signup(self):
+        self.manager.current = 'signup'
+
+    def go_back(self):
+        self.manager.current = 'home'
+
+
 class DivineMapsApp(App):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -206,6 +233,17 @@ class DivineMapsApp(App):
                 'Terms and Conditions': 'Terms and Conditions',
                 'Privacy Policy': 'Privacy Policy',
                 'Back': 'Back',
+                'Continue as Guest': 'Continue as Guest',
+                'You can:': 'You can:',
+                'Browse all sacred sites': 'Browse all sacred sites',
+                'View site details': 'View site details',
+                'Get directions': 'Get directions',
+                'Guest limitations:': 'Guest limitations:',
+                'Cannot save favorites': 'Cannot save favorites',
+                'No personalized recommendations': 'No personalized recommendations',
+                'Limited access to community features': 'Limited access to community features',
+                'Explore Now': 'Explore Now',
+                'Create Account': 'Create Account',
                 'terms_content': """
         1. Acceptance of Terms:
         By using Divine Maps, you agree to be bound by these Terms and Conditions...
@@ -239,6 +277,16 @@ class DivineMapsApp(App):
                 'Terms and Conditions': 'नियम और शर्तें',
                 'Privacy Policy': 'गोपनीयता नीति',
                 'Back': 'वापस',
+                'You can:': 'आप यह कर सकते हैं:',
+                'Browse all sacred sites': 'सभी पवित्र स्थलों को ब्राउज़ करें',
+                'View site details': 'साइट विवरण देखें',
+                'Get directions': 'दिशा-निर्देश प्राप्त करें',
+                'Guest limitations:': 'अतिथि सीमाएँ:',
+                'Cannot save favorites': 'पसंदीदा सहेज नहीं सकते',
+                'No personalized recommendations': 'कोई व्यक्तिगत सिफारिशें नहीं',
+                'Limited access to community features': 'सामुदायिक सुविधाओं तक सीमित पहुंच',
+                'Explore Now': 'अभी एक्सप्लोर करें',
+                'Create Account': 'खाता बनाएं',
                 'terms_content': """
         1. नियमों की स्वीकृति
         दिव्य मानचित्र का उपयोग करके, आप इन नियमों और शर्तों से बंधे होने के लिए सहमत होते हैं...
@@ -266,6 +314,16 @@ class DivineMapsApp(App):
                 'Terms and Conditions': 'ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು',
                 'Privacy Policy': 'ಗೌಪ್ಯತಾ ನೀತಿ',
                 'Back': 'ಹಿಂದಕ್ಕೆ',
+                'You can:': 'ನೀವು ಇದನ್ನು ಮಾಡಬಹುದು:',
+                'Browse all sacred sites': 'ಎಲ್ಲಾ ಪವಿತ್ರ ಸ್ಥಳಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ',
+                'View site details': 'ಸೈಟ್ ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
+                'Get directions': 'ದಿಕ್ಕುಗಳನ್ನು ಪಡೆಯಿರಿ',
+                'Guest limitations:': 'ಅತಿಥಿ ಮಿತಿಗಳು:',
+                'Cannot save favorites': 'ಮೆಚ್ಚಿನವುಗಳನ್ನು ಉಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ',
+                'No personalized recommendations': 'ವೈಯಕ್ತಿಕ ಶಿಫಾರಸುಗಳಿಲ್ಲ',
+                'Limited access to community features': 'ಸಮುದಾಯ ವೈಶಿಷ್ಟ್ಯಗಳಿಗೆ ಸೀಮಿತ ಪ್ರವೇಶ',
+                'Explore Now': 'ಈಗ ಅನ್ವೇಷಿಸಿ',
+                'Create Account': 'ಖಾತೆ ರಚಿಸಿ',
                 'terms_content': """
         1. ನಿಯಮಗಳ ಸ್ವೀಕಾರ
         ದಿವ್ಯ ನಕ್ಷೆಗಳನ್ನು ಬಳಸುವ ಮೂಲಕ, ನೀವು ಈ ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳಿಗೆ ಬದ್ಧರಾಗಿರುತ್ತೀರಿ...
@@ -290,8 +348,9 @@ class DivineMapsApp(App):
         sm.add_widget(HomeScreen(name='home'))
         sm.add_widget(SignUpScreen(name='signup'))
         sm.add_widget(ForgotPasswordScreen(name='forgot'))
-        sm.add_widget(TermsScreen(name='terms'))  # Add this
+        sm.add_widget(TermsScreen(name='terms'))
         sm.add_widget(PrivacyScreen(name='privacy'))
+        sm.add_widget(GuestScreen(name='guest'))
         return sm
 
 

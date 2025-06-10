@@ -1,0 +1,135 @@
+<GuestScreen>:
+    name: 'guest'
+
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+        # Background Image
+        Image:
+            source: 'data/bg.jpg'
+            allow_stretch: True
+            keep_ratio: False
+            opacity: 0.3
+            size: root.size
+            pos: root.pos
+
+        # Back Button
+        Button:
+            text: app.get_translations('Back')
+            size_hint: None, None
+            size: dp(80), dp(30)
+            pos_hint: {'x':0.02, 'top':0.98}
+            background_normal: ''
+            background_color: [0.9, 0.5, 0.2, 1]
+            color: [1, 1, 1, 1]
+            font_size: '14sp'
+            radius: [dp(10),]
+            on_release: root.go_back()
+
+        # Main Content
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: 0.9, 0.8
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            spacing: dp(20)
+
+            # Header
+            Label:
+                text: app.get_translations('Continue as Guest')
+                font_size: '60sp'
+                bold: True
+                size_hint_y: None
+                height: self.texture_size[1]
+                halign: 'center'
+                color: [0.2, 0.2, 0.2, 1]
+
+            # Guest Features
+            BoxLayout:
+                orientation: 'vertical'
+                size_hint_y: 0.6
+                spacing: dp(15)
+                padding: dp(150)
+
+                Label:
+                    text: app.get_translations('You can:')
+                    font_size: '25sp'
+                    bold: True
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    color: [0.2, 0.2, 0.2, 1]
+
+                Label:
+                    text: "• " + app.get_translations('Browse all sacred sites')
+                    font_size: '20sp'
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    color: [0.2, 0.2, 0.2, 1]
+
+                Label:
+                    text: "• " + app.get_translations('View site details')
+                    font_size: '20sp'
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    color: [0.2, 0.2, 0.2, 1]
+
+                Label:
+                    text: "• " + app.get_translations('Get directions')
+                    font_size: '20sp'
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    color: [0.2, 0.2, 0.2, 1]
+
+                Label:
+                    text: app.get_translations('Guest limitations:')
+                    font_size: '25sp'
+                    bold: True
+                    color: 0.8, 0.2, 0.2, 1
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    padding_y: dp(10)
+
+                Label:
+                    text: "• " + app.get_translations('Cannot save favorites')
+                    font_size: '20sp'
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    color: [0.2, 0.2, 0.2, 1]
+
+                Label:
+                    text: "• " + app.get_translations('No personalized recommendations')
+                    font_size: '20sp'
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    color: [0.2, 0.2, 0.2, 1]
+
+                Label:
+                    text: "• " + app.get_translations('Limited access to community features')
+                    font_size: '20sp'
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    color: [0.2, 0.2, 0.2, 1]
+
+            # Action Buttons
+            BoxLayout:
+                size_hint_y: None
+                height: dp(50)
+                spacing: dp(20)
+
+                Button:
+                    text: app.get_translations('Explore Now')
+                    background_normal: ''
+                    background_color: [0.3, 0.6, 0.9, 1]
+                    on_release: root.explore_as_guest()
+                    font_size: '20sp'
+
+                Button:
+                    text: app.get_translations('Create Account')
+                    background_normal: ''
+                    background_color: [0.9, 0.5, 0.2, 1]
+                    on_release: root.go_to_signup()
+                    font_size: '20sp'
