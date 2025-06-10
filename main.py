@@ -17,6 +17,8 @@ from app.data_manager import (
 Builder.load_file('ui/home.kv')
 Builder.load_file('ui/signup.kv')
 Builder.load_file('ui/forgot.kv')
+Builder.load_file('ui/terms.kv')
+Builder.load_file('ui/privacy.kv')
 Builder.load_file('ui/map.kv')
 Builder.load_file('ui/details.kv')
 Builder.load_file('ui/admin.kv')
@@ -129,10 +131,20 @@ class HomeScreen(Screen):
         print("Continuing as guest")
 
     def open_terms(self):
+        self.manager.current = 'terms'
         print("Opening terms and conditions")
 
     def open_privacy(self):
+        self.manager.current = 'privacy'
         print("Opening privacy policy")
+
+class TermsScreen(Screen):
+    def go_back(self):
+        self.manager.current = 'home'
+
+class PrivacyScreen(Screen):
+    def go_back(self):
+        self.manager.current = 'home'
 
 
 class SignUpScreen(Screen):
@@ -222,7 +234,26 @@ class DivineMapsApp(App):
                 'Version v1.0.0': 'Version v1.0.0',
                 'Quote': '"Faith is seeing light with your heart when all your eyes see is darkness"',
                 'Enter username': 'Enter username',
-                'Enter password': 'Enter password'
+                'Enter password': 'Enter password',
+                'Terms and Conditions': 'Terms and Conditions',
+                'Privacy Policy': 'Privacy Policy',
+                'Back': 'Back',
+                'terms_content': """
+        1. Acceptance of Terms:
+        By using Divine Maps, you agree to be bound by these Terms and Conditions...
+
+        2. User Accounts:
+        You are responsible for maintaining the confidentiality of your account...
+
+        [More detailed terms content here...]""",
+                'privacy_content': """
+        1. Information We Collect
+        We collect personal information when you register...
+
+        2. How We Use Information
+        We use your information to provide and improve our services...
+
+        [More detailed privacy content here...]"""
             },
             'hi': {
                 'Divine Maps': 'दिव्य मानचित्र',
@@ -236,7 +267,20 @@ class DivineMapsApp(App):
                 'Version v1.0.0': 'संस्करण v1.0.0',
                 'Quote': '"विश्वास वह है जब आपके हृदय से प्रकाश आता है, भले ही आँखें अंधकार देखें"',
                 'Enter username': 'उपयोगकर्ता नाम दर्ज करें',
-                'Enter password': 'पासवर्ड दर्ज करें'
+                'Enter password': 'पासवर्ड दर्ज करें',
+                'Terms and Conditions': 'नियम और शर्तें',
+                'Privacy Policy': 'गोपनीयता नीति',
+                'Back': 'वापस',
+                'terms_content': """
+        1. नियमों की स्वीकृति
+        दिव्य मानचित्र का उपयोग करके, आप इन नियमों और शर्तों से बंधे होने के लिए सहमत होते हैं...
+
+        [More Hindi content here...]""",
+                'privacy_content': """
+        1. हम कौन सी जानकारी एकत्र करते हैं
+        जब आप पंजीकरण करते हैं तो हम व्यक्तिगत जानकारी एकत्र करते हैं...
+
+        [More Hindi content here...]"""
             },
             'kn': {
                 'Divine Maps': 'ದಿವ್ಯ ನಕ್ಷೆಗಳು',
@@ -250,7 +294,20 @@ class DivineMapsApp(App):
                 'Version v1.0.0': 'ಆವೃತ್ತಿ v1.0.0',
                 'Quote': '"ನಂಬಿಕೆ ಎಂದರೆ ನಿಮ್ಮ ಹೃದಯದಿಂದ ಬೆಳಕನ್ನು ನೋಡುವುದು, ನಿಮ್ಮ ಕಣ್ಣುಗಳು ಕೇವಲ ಕತ್ತಲೆಯನ್ನು ನೋಡಿದಾಗ"',
                 'Enter username': 'ಬಳಕೆದಾರ ಹೆಸರನ್ನು ನಮೂದಿಸಿ',
-                'Enter password': 'ಗುಪ್ತಪದವನ್ನು ನಮೂದಿಸಿ'
+                'Enter password': 'ಗುಪ್ತಪದವನ್ನು ನಮೂದಿಸಿ',
+                'Terms and Conditions': 'ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು',
+                'Privacy Policy': 'ಗೌಪ್ಯತಾ ನೀತಿ',
+                'Back': 'ಹಿಂದಕ್ಕೆ',
+                'terms_content': """
+        1. ನಿಯಮಗಳ ಸ್ವೀಕಾರ
+        ದಿವ್ಯ ನಕ್ಷೆಗಳನ್ನು ಬಳಸುವ ಮೂಲಕ, ನೀವು ಈ ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳಿಗೆ ಬದ್ಧರಾಗಿರುತ್ತೀರಿ...
+
+        [More Kannada content here...]""",
+                'privacy_content': """
+        1. ನಾವು ಸಂಗ್ರಹಿಸುವ ಮಾಹಿತಿ
+        ನೀವು ನೋಂದಾಯಿಸಿದಾಗ ನಾವು ವೈಯಕ್ತಿಕ ಮಾಹಿತಿಯನ್ನು ಸಂಗ್ರಹಿಸುತ್ತೇವೆ...
+
+        [More Kannada content here...]"""
             }
         }
 
@@ -265,6 +322,8 @@ class DivineMapsApp(App):
         sm.add_widget(HomeScreen(name='home'))
         sm.add_widget(SignUpScreen(name='signup'))
         sm.add_widget(ForgotPasswordScreen(name='forgot'))
+        sm.add_widget(TermsScreen(name='terms'))  # Add this
+        sm.add_widget(PrivacyScreen(name='privacy'))
         return sm
 
 

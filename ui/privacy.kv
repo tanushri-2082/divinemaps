@@ -1,0 +1,63 @@
+<PrivacyScreen>:
+    name: 'privacy'
+
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+        # Background Image
+        Image:
+            source: 'data/bg.jpg'
+            allow_stretch: True
+            keep_ratio: False
+            opacity: 0.3
+            size: root.size
+            pos: root.pos
+
+        # Back Button
+        Button:
+            text: app.get_translations('Back')
+            size_hint: None, None
+            size: dp(80), dp(30)
+            pos_hint: {'x':0.02, 'top':0.98}
+            background_normal: ''
+            background_color: [0.9, 0.5, 0.2, 1]
+            color: [1, 1, 1, 1]
+            font_size: '14sp'
+            radius: [dp(10),]
+            on_release: root.go_back()
+
+        # Content
+        ScrollView:
+            size_hint: 0.9, 0.8
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+            GridLayout:
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                padding: dp(20)
+                spacing: dp(15)
+
+                Label:
+                    text: app.get_translations('Privacy Policy')
+                    color: [0.2, 0.2, 0.2, 1]
+                    font_size: '60sp'
+                    bold: True
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    halign: 'center'
+
+                Label:
+                    text: app.get_translations('privacy_content')
+                    color: [0.2, 0.2, 0.2, 1]
+                    font_size: '20sp'
+                    size_hint_y: None
+                    height: self.texture_size[1]
+                    text_size: self.width, None
+                    halign: 'left'
+                    valign: 'top'
