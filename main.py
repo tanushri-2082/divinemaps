@@ -14,7 +14,7 @@ from app.data_manager import (
 )
 
 # Load all KV files
-Builder.load_file('ui/home.kv')
+Builder.load_file('ui/login.kv')
 Builder.load_file('ui/signup.kv')
 Builder.load_file('ui/forgot.kv')
 Builder.load_file('ui/terms.kv')
@@ -24,7 +24,7 @@ Builder.load_file('ui/guest.kv')
 Builder.load_file('ui/admin.kv')
 
 
-class HomeScreen(Screen):
+class LoginScreen(Screen):
     def on_pre_enter(self):
         self.sites = fetch_all_sites()
         self.update_translations()  # refresh text + font
@@ -109,15 +109,15 @@ class HomeScreen(Screen):
 
 class TermsScreen(Screen):
     def go_back(self):
-        self.manager.current = 'home'
+        self.manager.current = 'login'
 
 class PrivacyScreen(Screen):
     def go_back(self):
-        self.manager.current = 'home'
+        self.manager.current = 'login'
 
 class SignUpScreen(Screen):
     def go_back(self):
-        self.manager.current = 'home'
+        self.manager.current = 'login'
 
     def on_signup_button(self):
         username = self.ids.username_input.text.strip()
@@ -142,14 +142,14 @@ class SignUpScreen(Screen):
         if result.get("success"):
             new_id = result["user_id"]
             print(f"[Success] Registered new user with ID: {new_id}")
-            self.manager.current = 'home'
+            self.manager.current = 'login'
         else:
             print(f"[Error] Could not register: {result.get('error')}")
 
 
 class ForgotPasswordScreen(Screen):
     def go_back(self):
-        self.manager.current = 'home'
+        self.manager.current = 'login'
 
     def on_reset_button(self):
         email = self.ids.email_input.text.strip()
@@ -177,7 +177,7 @@ class ForgotPasswordScreen(Screen):
         result = update_password(email, new_hash)
         if result.get("success"):
             print("[Success] Password updated successfully.")
-            self.manager.current = 'home'
+            self.manager.current = 'login'
         else:
             print(f"[Error] Could not update password: {result.get('error')}")
 
@@ -206,7 +206,7 @@ class GuestScreen(Screen):
         self.manager.current = 'signup'
 
     def go_back(self):
-        self.manager.current = 'home'
+        self.manager.current = 'login'
 
 
 class DivineMapsApp(App):
@@ -345,7 +345,7 @@ class DivineMapsApp(App):
 
     def build(self):
         sm = ScreenManager()
-        sm.add_widget(HomeScreen(name='home'))
+        sm.add_widget(LoginScreen(name='login'))
         sm.add_widget(SignUpScreen(name='signup'))
         sm.add_widget(ForgotPasswordScreen(name='forgot'))
         sm.add_widget(TermsScreen(name='terms'))
