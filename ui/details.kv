@@ -1,0 +1,76 @@
+#:import dp kivy.metrics.dp
+
+<DetailsScreen>:
+    name: 'details'
+    # Wrap in AnchorLayout to center the BoxLayout horizontally:
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'center'
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_x: 0.8   # reduce width; adjust as desired (0.5 narrower, 0.8 moderate)
+            padding: dp(20)
+            spacing: dp(15)
+
+            # Confirmation title, matching signup title font size
+            Label:
+                text: app.get_translations('Successfully Signed Up')
+                font_size: '60sp'       # increase to same as your signup title
+                bold: True
+                halign: 'center'
+                size_hint_y: None
+                height: self.texture_size[1]
+                color:[0.2, 0.2, 0.2, 1]
+
+            Label:
+                text: app.get_translations('Please provide the following details:')
+                font_size: '18sp'
+                halign: 'center'
+                size_hint_y: None
+                height: self.texture_size[1]
+                color:[0.2, 0.2, 0.2, 1]
+
+            TextInput:
+                id: address_input
+                hint_text: app.get_translations('Enter address')
+                multiline: False
+                size_hint_y: None
+                height: dp(44)
+
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                height: dp(44)
+                spacing: dp(5)
+
+                TextInput:
+                    id: dob_input
+                    hint_text: app.get_translations('YYYY-MM-DD')
+                    multiline: False
+                    # we allow manual entry, so do NOT set readonly: True
+                    size_hint_x: 1
+
+                MDIconButton:
+                    icon: "calendar"
+                    user_font_size: "24sp"
+                    size_hint: None, None
+                    size: dp(44), dp(44)
+                    on_release: root.open_date_picker()
+
+            Spinner:
+                id: religion_spinner
+                text: app.get_translations('Select Religion')
+                # single-line list to avoid indentation issues:
+                values: [app.get_translations('Sikhism'), app.get_translations('Islam'), app.get_translations('Christianity'), app.get_translations('Jainism'), app.get_translations('Hinduism'), app.get_translations('Buddhism'), app.get_translations('Atheist'), app.get_translations('No Preference')]
+                size_hint_y: None
+                height: dp(44)
+
+            MDRaisedButton:
+                id: continue_button
+                text: app.get_translations('Continue')
+                size_hint_y: None
+                height: dp(48)
+                pos_hint: {'center_x': 0.5}
+                disabled: True
+                on_release: root.submit_form()

@@ -6,30 +6,22 @@ from mysql.connector import Error, IntegrityError
 class DataManager:
     @staticmethod
     def _execute_query(query, params=None, fetch_one=False):
-        """
-        Helper method to execute SELECT queries with proper connection handling.
-        Returns a dictionary (if fetch_one=True) or a list of dictionaries.
-        """
         conn = None
+        cursor = None
         try:
             conn = get_connection()
             cursor = conn.cursor(dictionary=True)
             cursor.execute(query, params or ())
-
             if fetch_one:
-                result = cursor.fetchone()
-            else:
-                result = cursor.fetchall()
-
-            return result
-
+                return cursor.fetchone()
+            return cursor.fetchall()
         except Error as e:
             print(f"Database error: {e}")
             return None
-
         finally:
-            if conn and conn.is_connected():
+            if cursor:
                 cursor.close()
+            if conn and conn.is_connected():
                 conn.close()
 
     @staticmethod
@@ -110,24 +102,21 @@ class DataManager:
             VALUES (%s, %s, %s, 'user')
         """
         conn = None
+        cursor = None
         try:
             conn = get_connection()
             cursor = conn.cursor()
             cursor.execute(insert_query, (username, email, password_hash))
             conn.commit()
-            new_id = cursor.lastrowid
-            return {"success": True, "user_id": new_id}
-
+            return {"success": True, "user_id": cursor.lastrowid}
         except IntegrityError:
-            # Usually duplicate‐key (username or email must be UNIQUE)
             return {"success": False, "error": "Username or Email already in use."}
-
         except Error as e:
             return {"success": False, "error": str(e)}
-
         finally:
-            if conn and conn.is_connected():
+            if cursor:
                 cursor.close()
+            if conn and conn.is_connected():
                 conn.close()
 
     @staticmethod
@@ -147,35 +136,64 @@ class DataManager:
                 or {"success": False, "error": <message>} otherwise.
         """
         conn = None
+        cursor = None
         try:
             conn = get_connection()
             cursor = conn.cursor()
             update_query = "UPDATE users SET password_hash = %s WHERE email = %s"
             cursor.execute(update_query, (new_password_hash, email))
             conn.commit()
-
             if cursor.rowcount == 0:
-                # No rows were updated → email not found
                 return {"success": False, "error": "Email not found."}
             return {"success": True}
-
         except Error as e:
             return {"success": False, "error": str(e)}
-
         finally:
-            if conn and conn.is_connected():
+            if cursor:
                 cursor.close()
+            if conn and conn.is_connected():
+                conn.close()
+
+    @staticmethod
+    def update_user_details(user_id, address, dob_str, religion):
+        """
+        Update address, dob, religion for given user_id.
+        Expects `dob_str` in 'YYYY-MM-DD' format.
+        """
+        conn = None
+        cursor = None
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            query = """
+                UPDATE users
+                SET address = %s, dob = %s, religion = %s
+                WHERE user_id = %s
+            """
+            cursor.execute(query, (address, dob_str, religion, user_id))
+            conn.commit()
+            if cursor.rowcount == 1:
+                return {"success": True}
+            else:
+                return {"success": False, "error": "No row updated"}
+        except Error as e:
+            return {"success": False, "error": str(e)}
+        finally:
+            if cursor:
+                cursor.close()
+            if conn and conn.is_connected():
                 conn.close()
 
 
-# ─── Expose module‐level functions ────────────────────────────────────────────
-fetch_all_sites         = DataManager.fetch_all_sites
-fetch_site_by_id        = DataManager.fetch_site_by_id
-fetch_events_by_site    = DataManager.fetch_events_by_site
-fetch_images_by_site    = DataManager.fetch_images_by_site
-fetch_reviews_by_site   = DataManager.fetch_reviews_by_site
-fetch_user              = DataManager.fetch_user
+# Expose module‐level functions
+fetch_all_sites          = DataManager.fetch_all_sites
+fetch_site_by_id         = DataManager.fetch_site_by_id
+fetch_events_by_site     = DataManager.fetch_events_by_site
+fetch_images_by_site     = DataManager.fetch_images_by_site
+fetch_reviews_by_site    = DataManager.fetch_reviews_by_site
+fetch_user               = DataManager.fetch_user
 validate_user_credentials = DataManager.validate_user_credentials
-register_user           = DataManager.register_user
-get_user_by_email       = DataManager.get_user_by_email
-update_password         = DataManager.update_password
+register_user            = DataManager.register_user
+get_user_by_email        = DataManager.get_user_by_email
+update_password          = DataManager.update_password
+update_user_details      = DataManager.update_user_details

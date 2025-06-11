@@ -68,13 +68,13 @@
 
                     TextInput:
                         id: username_input
-                        hint_text: app.get_translations("Enter username")
+                        hint_text: app.get_translations('Enter username')
                         size_hint: 1, None
                         height: dp(44)
 
                     TextInput:
                         id: password_input
-                        hint_text: app.get_translations("Enter password")
+                        hint_text: app.get_translations('Enter password')
                         password: True
                         size_hint: 1, None
                         height: dp(44)
@@ -141,7 +141,7 @@
         # 6) Language Selector
         Spinner:
             id: lang_selector
-            text: app.i18n['locale']
+            text: app.locale
             values: ['en', 'hi', 'kn']
             background_normal: ''
             background_color: [0.9, 0.5, 0.2, 1]
@@ -149,11 +149,7 @@
             size_hint: None, None
             size: dp(80), dp(30)
             pos_hint: {'right': .98, 'top': .98}
-            on_text:
-                app.i18n['locale'] = self.text
-                root.update_translations()
-
-
+            on_text: app.set_locale(self.text)
 
         # 7) Footer: Version & Legal
         BoxLayout:

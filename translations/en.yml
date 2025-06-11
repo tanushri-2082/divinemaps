@@ -1,4 +1,3 @@
-# English (en.yml)
 Divine Maps: "Divine Maps"
 Spiritual Exploration Made Simple: "Spiritual Exploration Made Simple"
 Login: "Login"
@@ -7,7 +6,78 @@ Continue as Guest: "Continue as Guest"
 Forgot Password: "Forgot Password"
 Terms: "Terms"
 Privacy: "Privacy"
-Version: "Version v1.0.0"
+Version v1.0.0: "Version v1.0.0"
 Quote: '"Faith is seeing light with your heart when all your eyes see is darkness"'
-Enter username: 'Enter username'
-Enter password: 'Enter password'
+Enter username: "Enter username"
+Enter email: "Enter email"
+Enter password: "Enter password"
+Re-enter password: "Re-enter password"
+Back: "Back"
+
+You can: "You can:"
+Browse all sacred sites: "Browse all sacred sites"
+View site details: "View site details"
+Get directions: "Get directions"
+Guest limitations: "Guest limitations:"
+Cannot save favorites: "Cannot save favorites"
+No personalized recommendations: "No personalized recommendations"
+Limited access to community features: "Limited access to community features"
+Explore Now: "Explore Now"
+Create Account: "Create Account"
+
+Terms and Conditions: "Terms and Conditions"
+Privacy Policy: "Privacy Policy"
+terms_content: |
+  1. Acceptance of Terms:
+  By using Divine Maps, you agree to be bound by these Terms and Conditions...
+  [More detailed terms content here...]
+privacy_content: |
+  1. Information We Collect
+  We collect personal information when you register...
+  [More detailed privacy content here...]
+
+# Login screen
+Username: "Username"
+Password: "Password"
+Login Button: "Login"
+Sign Up Link: "Sign Up"
+Forgot Password Link: "Forgot Password"
+Continue as Guest Link: "Continue as Guest"
+Version: "Version v1.0.0"
+Select Language: "Select Language"
+
+# Signup / Details screen
+Successfully Signed Up: "Successfully Signed Up"
+Please provide the following details: "Please provide the following details:"
+Address: "Address"
+Enter address: "Enter address"
+Date of Birth: "Date of Birth"
+YYYY-MM-DD: "YYYY-MM-DD"
+Religion: "Religion"
+Select Religion: "Select Religion"
+Sikhism: "Sikhism"
+Islam: "Islam"
+Christianity: "Christianity"
+Jainism: "Jainism"
+Hinduism: "Hinduism"
+Buddhism: "Buddhism"
+Atheist: "Atheist"
+No Preference: "No Preference"
+Continue: "Continue"
+Details saved!: "Details saved!"
+Could not save details: "Could not save details: "
+
+# Forgot Password (simple flow)
+All fields required: "All fields are required."
+Passwords do not match: "Passwords do not match."
+Password must be at least 6 characters.: "Password must be at least 6 characters."
+Email not found.: "Email not found."
+Password reset successful: "Password reset successful"
+Password reset failed: "Password reset failed: "
+Invalid credentials: "Invalid credentials"
+User not found. Please login again.: "User not found. Please login again."
+Invalid date format.: "Invalid date format."
+
+# Guest
+Guest Mode: "Guest Mode"
+Exploring in guest mode with limited features: "Exploring in guest mode with limited features"

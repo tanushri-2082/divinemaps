@@ -44,7 +44,9 @@
                 spacing: dp(15)
 
 
+                # Title Label: each property on its own line
                 Label:
+                    id: terms_title
                     text: app.get_translations('Terms and Conditions')
                     color: [0.2, 0.2, 0.2, 1]
                     font_size: '60sp'
@@ -54,7 +56,8 @@
                     halign: 'center'
 
                 Label:
-                    text: app.get_translations('terms_content')
+                    id: privacy_content_label
+                    text: app.get_translations('privacy_content')
                     color: [0.2, 0.2, 0.2, 1]
                     font_size: '20sp'
                     size_hint_y: None

@@ -1,13 +1,84 @@
-# Kannada (kn.yml)
+# Kannada translations (kn.yml)
+
 Divine Maps: "ದಿವ್ಯ ನಕ್ಷೆಗಳು"
-Spiritual Exploration Made Simple: "ಆಧ್ಯಾತ್ಮಿಕ ಅನ್ವೇಷಣೆಯನ್ನು ಸರಳಗೊಳಿಸಲಾಗಿದೆ"
+Spiritual Exploration Made Simple: "ಆಧ್ಯಾತ್ಮಿಕ ಅನ್ವೇಷಣೆ ಸರಳಗೊಳಿಸಲಾಗಿದೆ"
 Login: "ಲಾಗಿನ್"
 Sign Up: "ಸೈನ್ ಅಪ್"
 Continue as Guest: "ಅತಿಥಿಯಾಗಿ ಮುಂದುವರಿಸಿ"
-Forgot Password: "ಪಾಸ್ವರ್ಡ್ ಮರೆತಿರಾ"
+Forgot Password: "ಪಾಸ್‌ವર્ડ್ ಮರೆತಿದ್ದು"
 Terms: "ನಿಯಮಗಳು"
 Privacy: "ಗೌಪ್ಯತೆ"
+Version v1.0.0: "ಆವೃತ್ತಿ v1.0.0"
+Quote: "ನಂಬಿಕೆಯು ಕಣ್ಣು ನೋಡುವುದಕ್ಕಿಂತ ಹೃದಯದಿಂದ ಬೆಳಕನ್ನು ಕಾಣುವುದು"
+Enter username: "ಬಳಕೆದಾರಹೆಸರನ್ನು ನಮೂದಿಸಿ"
+Enter email: "ಇಮೇಲ್ ನಮೂದಿಸಿ"
+Enter password: "ಗುಪ್ತಪದ ನಮೂದಿಸಿ"
+Re-enter password: "ಪಾಸ್‌ವರ್ಡ್ ಪುನಃ ನಮೂದಿಸಿ"
+Back: "ಹಿಂದಿಗೆ"
+You can: "ನೀವು ಮಾಡಬಹುದಾಗಿದೆ:"
+Browse all sacred sites: "ಎಲ್ಲಾ ಪವಿತ್ರ ಸ್ಥಳಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ"
+View site details: "ಸೈಟ್ ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ"
+Get directions: "ದಿಕ್ಕುಗಳನ್ನು ಪಡೆಯಿರಿ"
+Guest limitations: "ಅತಿಥಿ ಮಿತಿ:"
+Cannot save favorites: "ಆಯ್ಕೆಗಳನ್ನು ಉಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ"
+No personalized recommendations: "ಯೈಕ್ತಿಕ ಶಿಫಾರಸುಗಳಿಲ್ಲ"
+Limited access to community features: "ಸಮುದಾಯ ವೈಶಿಷ್ಟ್ಯಗಳಿಗೆ ಸೀಮಿತ ಪ್ರವೇಶ"
+Explore Now: "ಈಗ ಅನ್ವೇಷಿಸಿ"
+Create Account: "ಖಾತೆ ರಚಿಸಿ"
+
+Terms and Conditions: "ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು"
+Privacy Policy: "ಗೌಪ್ಯತಾ ನೀತಿ"
+terms_content: "|
+  1. ನಿಯಮಗಳಿಗೆ ಅಂಗೀಕಾರ:
+     ದಿವ್ಯ ನಕ್ಷೆಗಳು ಬಳಸುವ ಮೂಲಕ, ನೀವು ಈ ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳಿಗೆ ಬದ್ಧರಾಗುತ್ತೀರಿ...
+  [ಇಲ್ಲಿ ಹೆಚ್ಚಿನ ವಿವರಿತ ನಿಯಮಾನುಕ್ರಮಣಿಕೆ...]"
+privacy_content: "|
+  1. ನಾವು ಸಂಗ್ರಹಿಸುವ ಮಾಹಿತಿ:
+     ನೋಂದಾಯಿಸಿದಾಗ ನಾವು ವೈಯಕ್ತಿಕ ಮಾಹಿತಿಯನ್ನು ಸಂಗ್ರಹಿಸುತ್ತೇವೆ...
+  [ಇಲ್ಲಿ ಹೆಚ್ಚಿನ ವಿವರಿತ ಗೌಪ್ಯತಾ ವಿವರಗಳು...]"
+
+# Login screen
+Username: "ಬಳಕೆದಾರಹೆಸರು"
+Password: "ಗುಪ್ತಪದ"
+Login Button: "ಲಾಗಿನ್"
+Sign Up Link: "ಸೈನ್ ಅಪ್"
+Forgot Password Link: "ಪಾಸ್‌ವರ್ಡ್ ಮರೆತಿದ್ದು"
+Continue as Guest Link: "ಅತಿಥಿಯಾಗಿ ಮುಂದುವರಿಸಿ"
 Version: "ಆವೃತ್ತಿ v1.0.0"
-Quote: '"ನಂಬಿಕೆ ಎಂದರೆ ನಿಮ್ಮ ಹೃದಯದಿಂದ ಬೆಳಕನ್ನು ನೋಡುವುದು, ನಿಮ್ಮ ಕಣ್ಣುಗಳು ಕೇವಲ ಕತ್ತಲೆಯನ್ನು ನೋಡಿದಾಗ"'
-Enter username: 'ಬಳಕೆದಾರ ಹೆಸರನ್ನು ನಮೂದಿಸ'
-Enter password: 'ಗುಪ್ತಪದವನ್ನು ನಮೂದಿಸಿ'
+Select Language: "ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ"
+
+# Signup / Details screen
+Successfully Signed Up: "ಯಶಸ್ವಿಯಾಗಿ ಸೈನ್ ಅಪ್ ಆಗಿದೆ"
+Please provide the following details: "ದಯವಿಟ್ಟು ಕೆಳಕಂಡ ವಿವರಗಳನ್ನು ಒದಗಿಸಿ:"
+Address: "ವಿಳಾಸ"
+Enter address: "ವಿಳಾಸ ನಮೂದಿಸಿ"
+Date of Birth: "ಜನ್ಮತಾರಿಖೆ"
+YYYY-MM-DD: "YYYY-MM-DD"
+Religion: "ಧರ್ಮ"
+Select Religion: "ಧರ್ಮ ಆಯ್ಕೆಮಾಡಿ"
+Sikhism: "ಸಿಖ್ ಧರ್ಮ"
+Islam: "ಇಸ್ಲಾಂ"
+Christianity: "ಕ್ರಿಶ್ಚಿಯನ್ ಧರ್ಮ"
+Jainism: "ಜೈನ ಧರ್ಮ"
+Hinduism: "ಹಿಂದೂ ಧರ್ಮ"
+Buddhism: "ಬೌದ್ಧ ಧರ್ಮ"
+Atheist: "ನಾಸ್ತಿಕ"
+No Preference: "ಯಾವುದೇ ಆದ್ಯತೆ ಇಲ್ಲ"
+Continue: "ಮುಂದುವರಿಸಿ"
+Details saved!: "ವಿವರಗಳನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಉಳಿಸಲಾಗಿದೆ!"
+Could not save details: "ವಿವರಗಳನ್ನು ಉಳಿಸಲಾಗಲಿಲ್ಲ: "
+
+# Forgot Password (simple flow)
+All fields required: "ಎಲ್ಲಾ ಕ್ಷೇತ್ರಗಳು ಅಗತ್ಯವಿವೆ."
+Passwords do not match: "ಗುಪ್ತಪದಗಳು ಹೊಂದಿಕೆಯಾಗುತ್ತಿಲ್ಲ"
+Password must be at least 6 characters.: "ಗುಪ್ತಪದ ಕನಿಷ್ಠ 6 ಅಕ್ಷರದಿರಬೇಕು."
+Email not found.: "ಇಮೇಲ್ ಸಿಗಲಿಲ್ಲ."
+Password reset successful: "ಪುನಃಸೇವನೆ ಯಶಸ್ವಿ"
+Password reset failed: "ಪುನಃಸೇವನೆ ವಿಫಲ: "
+Invalid credentials: "ಅಮಾನ್ಯ ಪ್ರಮಾಣಪತ್ರ"
+User not found. Please login again.: "ಬಳಕೆದಾರ ಸಿಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಲಾಗಿನ್ ಮಾಡಿ."
+Invalid date format.: "ಅಮಾನ್ಯ ದಿನಾಂಕ ರೂಪ"
+
+# Guest
+Guest Mode: "ಅತಿಥಿ ಮೋಡ್"
+Exploring in guest mode with limited features: "ಸೀಮಿತ ವೈಶಿಷ್ಟ್ಯಗಳೊಂದಿಗೆ ಅತಿಥಿ ಮೋಡ್‌ನಲ್ಲಿ ಅನ್ವೇಷಣೆ"

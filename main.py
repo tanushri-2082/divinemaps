@@ -1,24 +1,39 @@
 # main.py
 
-from kivy.resources import resource_find
+import os
+import hashlib
+import yaml
+from datetime import datetime
+
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-import hashlib
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
+from kivy.resources import resource_find
+
+from kivymd.app import MDApp
+from kivymd.uix.pickers.datepicker import MDDatePicker
+from kivymd.uix.button import MDIconButton  # for calendar icon
+from kivymd.uix.button import MDRaisedButton  # for “Continue” button styling
+
 
 from app.data_manager import (
     fetch_all_sites,
     register_user,
     get_user_by_email,
-    update_password
+    update_password,
+    update_user_details,
+    validate_user_credentials
 )
 
-# Load all KV files
+# Load KV files
 Builder.load_file('ui/login.kv')
 Builder.load_file('ui/signup.kv')
-Builder.load_file('ui/forgot.kv')
+Builder.load_file('ui/details.kv')
 Builder.load_file('ui/terms.kv')
 Builder.load_file('ui/privacy.kv')
+Builder.load_file('ui/forgot.kv')
 Builder.load_file('ui/map.kv')
 Builder.load_file('ui/guest.kv')
 Builder.load_file('ui/admin.kv')
@@ -26,86 +41,108 @@ Builder.load_file('ui/admin.kv')
 
 class LoginScreen(Screen):
     def on_pre_enter(self):
-        self.sites = fetch_all_sites()
-        self.update_translations()  # refresh text + font
-        print("Loaded sites:", self.sites)
+        self.update_translations()
 
     def update_translations(self):
         app = App.get_running_app()
-        lang = app.i18n['locale']
-
-        # ── 0) resolve all font paths ─────────────────────────────────────
+        # Retrieve current locale (fallback to 'en')
+        try:
+            lang = app.locale
+        except Exception:
+            lang = 'en'
+        # Fonts
         hi_font = resource_find('data/fonts/NotoSansDevanagari-Regular.ttf')
         kn_font = resource_find('data/fonts/NotoSansKannada-Regular.ttf')
         en_font = resource_find('data/fonts/Roboto-Regular.ttf')
-
-        # pick your “label” font by locale
         label_font = {'hi': hi_font, 'kn': kn_font}.get(lang, en_font)
+        input_font = {'hi': hi_font, 'kn': kn_font}.get(lang, en_font)
 
-        # ── 1) labels & buttons ───────────────────────────────────────
-        for wid_id, key in (
-                ('title_label', 'Divine Maps'),
-                ('tagline_label', 'Spiritual Exploration Made Simple'),
-                ('login_button', 'Login'),
-        ):
-            w = self.ids[wid_id]
-            w.text = app.get_translations(key)
-            w.font_name = label_font
+        # Title label
+        if 'title_label' in self.ids:
+            self.ids.title_label.text = app.get_translations('Divine Maps')
+            self.ids.title_label.font_name = label_font
+        if 'tagline_label' in self.ids:
+            self.ids.tagline_label.text = app.get_translations('Spiritual Exploration Made Simple')
+            self.ids.tagline_label.font_name = label_font
 
-        # ── 2) the three “links” ──────────────────────────────────────
-        for wid_id, key in (
-                ('signup_label', 'Sign Up'),
-                ('forgot_label', 'Forgot Password'),
-                ('guest_label', 'Continue as Guest'),
-        ):
-            w = self.ids[wid_id]
-            w.text = f"[ref={wid_id}]{app.get_translations(key)}[/ref]"
-            w.font_name = label_font
+        # Username/password hints
+        if 'username_input' in self.ids:
+            self.ids.username_input.hint_text = app.get_translations('Enter username')
+            self.ids.username_input.font_name = input_font
+        if 'password_input' in self.ids:
+            self.ids.password_input.hint_text = app.get_translations('Enter password')
+            self.ids.password_input.font_name = input_font
 
-        # ── 3) quote, version, terms/privacy ─────────────────────────
-        self.ids.quote_label.text = app.get_translations('Quote')
-        self.ids.version_label.text = app.get_translations('Version v1.0.0')
-        self.ids.terms_label.text = (
-            f"[ref=terms]{app.get_translations('Terms')}[/ref] | "
-            f"[ref=privacy]{app.get_translations('Privacy')}[/ref]"
-        )
-        for wid in ('quote_label', 'version_label', 'terms_label'):
-            self.ids[wid].font_name = label_font
+        # Login button
+        if 'login_button' in self.ids:
+            self.ids.login_button.text = app.get_translations('Login')
+            self.ids.login_button.font_name = label_font
 
-        # ── 4) TextInputs: set appropriate font depending on language ─────────────
-        if lang == 'hi':
-            input_font = hi_font
-        elif lang == 'kn':
-            input_font = kn_font
-        else:
-            input_font = en_font
+        # Links: Sign Up / Forgot / Guest
+        if 'signup_label' in self.ids:
+            self.ids.signup_label.text = f"[ref=signup]{app.get_translations('Sign Up')}[/ref]"
+            self.ids.signup_label.font_name = label_font
+        if 'forgot_label' in self.ids:
+            self.ids.forgot_label.text = f"[ref=forgot]{app.get_translations('Forgot Password')}[/ref]"
+            self.ids.forgot_label.font_name = label_font
+        if 'guest_label' in self.ids:
+            self.ids.guest_label.text = f"[ref=guest]{app.get_translations('Continue as Guest')}[/ref]"
+            self.ids.guest_label.font_name = label_font
 
-        self.ids.username_input.hint_text = app.get_translations('Enter username')
-        self.ids.password_input.hint_text = app.get_translations('Enter password')
-        self.ids.username_input.font_name = input_font
-        self.ids.password_input.font_name = input_font
+        # Quote
+        if 'quote_label' in self.ids:
+            self.ids.quote_label.text = app.get_translations('Quote')
+            self.ids.quote_label.font_name = label_font
+
+        # Version & terms
+        if 'version_label' in self.ids:
+            self.ids.version_label.text = app.get_translations('Version v1.0.0')
+            self.ids.version_label.font_name = label_font
+        if 'terms_label' in self.ids:
+            self.ids.terms_label.text = f"[ref=terms]{app.get_translations('Terms')}[/ref] | [ref=privacy]{app.get_translations('Privacy')}[/ref]"
+            self.ids.terms_label.font_name = label_font
 
     def do_login(self, username, password):
-        print(f"Logging in with {username}:{password}")
-        # TODO: Validate + navigate
+        app = App.get_running_app()
+        # Validate credentials
+        if not username or not password:
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('All fields required')),
+                size_hint=(0.6, 0.4)
+            ).open()
+            return
+
+        pw_hash = hashlib.sha256(password.encode()).hexdigest()
+        user = validate_user_credentials(username, pw_hash)
+        if user:
+            # Login successful; store current_user_id
+            app.current_user_id = user['user_id']
+            # Navigate onward, e.g. main map
+            self.manager.current = 'map'
+        else:
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('Invalid credentials')),
+                size_hint=(0.6, 0.4)
+            ).open()
 
     def go_to_signup(self):
         self.manager.current = 'signup'
 
     def go_to_forgot(self):
+        # Reverted: go to single forgot screen
         self.manager.current = 'forgot'
 
     def continue_as_guest(self):
         self.manager.current = 'guest'
-        print("Continuing as guest")
 
     def open_terms(self):
         self.manager.current = 'terms'
-        print("Opening terms and conditions")
 
     def open_privacy(self):
         self.manager.current = 'privacy'
-        print("Opening privacy policy")
+
 
 class TermsScreen(Screen):
     def go_back(self):
@@ -115,36 +152,68 @@ class PrivacyScreen(Screen):
     def go_back(self):
         self.manager.current = 'login'
 
+
 class SignUpScreen(Screen):
+    def on_pre_enter(self):
+        app = App.get_running_app()
+        # Translations for signup screen
+        if 'signup_title' in self.ids:
+            self.ids.signup_title.text = app.get_translations('Sign Up')
+        if 'username_input' in self.ids:
+            self.ids.username_input.hint_text = app.get_translations('Enter username')
+        if 'email_input' in self.ids:
+            self.ids.email_input.hint_text = app.get_translations('Enter email')
+        if 'password_input' in self.ids:
+            self.ids.password_input.hint_text = app.get_translations('Enter password')
+        if 'confirm_password_input' in self.ids:
+            self.ids.confirm_password_input.hint_text = app.get_translations('Re-enter password')
+        if 'signup_button' in self.ids:
+            self.ids.signup_button.text = app.get_translations('Sign Up')
+
     def go_back(self):
         self.manager.current = 'login'
 
     def on_signup_button(self):
+        app = App.get_running_app()
         username = self.ids.username_input.text.strip()
         email = self.ids.email_input.text.strip()
         password = self.ids.password_input.text
-        confirm_password = self.ids.confirm_password_input.text
+        confirm = self.ids.confirm_password_input.text
 
-        if not (username and email and password and confirm_password):
-            print("[Error] All fields are required.")
+        if not (username and email and password and confirm):
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('All fields required')),
+                size_hint=(0.6, 0.4)
+            ).open()
             return
-
-        if password != confirm_password:
-            print("[Error] Password and Confirm Password do not match.")
+        if password != confirm:
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('Passwords do not match')),
+                size_hint=(0.6, 0.4)
+            ).open()
             return
-
         if len(password) < 6:
-            print("[Error] Password must be at least 6 characters.")
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('Password must be at least 6 characters.')),
+                size_hint=(0.6, 0.4)
+            ).open()
             return
 
         pw_hash = hashlib.sha256(password.encode()).hexdigest()
-        result = register_user(username, email, pw_hash)
-        if result.get("success"):
-            new_id = result["user_id"]
-            print(f"[Success] Registered new user with ID: {new_id}")
-            self.manager.current = 'login'
+        res = register_user(username, email, pw_hash)
+        if res.get('success'):
+            app.current_user_id = res['user_id']
+            # Navigate to details screen
+            self.manager.current = 'details'
         else:
-            print(f"[Error] Could not register: {result.get('error')}")
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=res.get('error', '')),
+                size_hint=(0.6, 0.4)
+            ).open()
 
 
 class ForgotPasswordScreen(Screen):
@@ -152,55 +221,259 @@ class ForgotPasswordScreen(Screen):
         self.manager.current = 'login'
 
     def on_reset_button(self):
+        app = App.get_running_app()
         email = self.ids.email_input.text.strip()
         new_password = self.ids.new_password_input.text
         confirm_new_password = self.ids.confirm_new_password_input.text
 
+        # Basic validations
         if not (email and new_password and confirm_new_password):
-            print("[Error] All fields are required.")
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('All fields required')),
+                size_hint=(0.6, 0.4)
+            ).open()
             return
-
         if new_password != confirm_new_password:
-            print("[Error] Passwords do not match.")
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('Passwords do not match')),
+                size_hint=(0.6, 0.4)
+            ).open()
             return
-
         if len(new_password) < 6:
-            print("[Error] Password must be at least 6 characters.")
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('Password must be at least 6 characters.')),
+                size_hint=(0.6, 0.4)
+            ).open()
             return
 
         user = get_user_by_email(email)
         if not user:
-            print("[Error] Email not found.")
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('Email not found.')),
+                size_hint=(0.6, 0.4)
+            ).open()
             return
 
-        new_hash = hashlib.sha256(new_password.encode()).hexdigest()
-        result = update_password(email, new_hash)
+        pw_hash = hashlib.sha256(new_password.encode()).hexdigest()
+        result = update_password(email, pw_hash)
         if result.get("success"):
-            print("[Success] Password updated successfully.")
+            Popup(
+                title=app.get_translations('Success'),
+                content=Label(text=app.get_translations('Password reset successful')),
+                size_hint=(0.6, 0.4)
+            ).open()
             self.manager.current = 'login'
         else:
-            print(f"[Error] Could not update password: {result.get('error')}")
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('Password reset failed: ') + result.get('error', '')),
+                size_hint=(0.6, 0.4)
+            ).open()
+
+
+class DetailsScreen(Screen):
+    def on_pre_enter(self):
+        app = App.get_running_app()
+        # Clear fields and set hints
+        if 'address_input' in self.ids:
+            self.ids.address_input.text = ''
+            self.ids.address_input.hint_text = app.get_translations('Enter address')
+        if 'dob_input' in self.ids:
+            self.ids.dob_input.text = ''
+            self.ids.dob_input.hint_text = app.get_translations('YYYY-MM-DD')
+            # Allow manual entry:
+            self.ids.dob_input.readonly = False
+        if 'religion_spinner' in self.ids:
+            self.ids.religion_spinner.text = app.get_translations('Select Religion')
+        from kivy.clock import Clock
+        Clock.schedule_once(lambda dt: self._bind_form_fields())
+
+    def _bind_form_fields(self):
+        # Bind text change events
+        if 'address_input' in self.ids:
+            self.ids.address_input.bind(text=self.check_form)
+        if 'dob_input' in self.ids:
+            self.ids.dob_input.bind(text=self.check_form)
+        if 'religion_spinner' in self.ids:
+            self.ids.religion_spinner.bind(text=self.check_form)
+        # Initially disable Continue
+        self.check_form()
+
+    def open_date_picker(self):
+        date_dialog = MDDatePicker()
+        # Optionally, set year range:
+        # date_dialog.min_year = 1900
+        # date_dialog.max_year = datetime.now().year
+        date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
+        date_dialog.open()
+
+    def on_save(self, instance, value, date_range):
+        # `value` is a datetime.date object
+        # Format to YYYY-MM-DD:
+        self.ids.dob_input.text = value.strftime('%Y-%m-%d')
+
+    def on_cancel(self, instance, value):
+        pass
+
+    def check_form(self, *args):
+        """Enable Continue button only if all fields filled & valid."""
+        app = MDApp.get_running_app()
+        address = self.ids.address_input.text.strip() if 'address_input' in self.ids else ''
+        dob = self.ids.dob_input.text.strip() if 'dob_input' in self.ids else ''
+        religion = self.ids.religion_spinner.text.strip() if 'religion_spinner' in self.ids else ''
+        select_religion_text = app.get_translations('Select Religion')
+        # Check non-empty, religion not default, and dob format roughly YYYY-MM-DD
+        valid = False
+        if address and dob and religion and religion != select_religion_text:
+            # Quick format check: 4-2-2 digits
+            try:
+                datetime.strptime(dob, '%Y-%m-%d')
+                valid = True
+            except:
+                valid = False
+        btn = self.ids.get('continue_button')
+        if btn:
+            btn.disabled = not valid
+            if valid:
+                # Set orange background (RGBA). If using MDApp with theme_cls.primary_color or custom:
+                # If your orange is e.g. [0.9,0.5,0.2,1], set:
+                try:
+                    btn.md_bg_color = [0.9, 0.5, 0.2, 1]
+                except:
+                    # fallback for plain Button: background_color
+                    btn.background_normal = ''
+                    btn.background_color = [0.9, 0.5, 0.2, 1]
+            else:
+                # gray out
+                try:
+                    btn.md_bg_color = [0.5, 0.5, 0.5, 1]
+                except:
+                    btn.background_normal = ''
+                    btn.background_color = [0.5, 0.5, 0.5, 1]
+
+    def submit_form(self):
+        app = MDApp.get_running_app()
+        address = self.ids.address_input.text.strip()
+        dob = self.ids.dob_input.text.strip()
+        religion = self.ids.religion_spinner.text.strip()
+        select_religion_text = app.get_translations('Select Religion')
+        # Re-validate
+        if not (address and dob and religion and religion != select_religion_text):
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('All fields required')),
+                size_hint=(0.6, 0.4)
+            ).open()
+            return
+        # Validate date format
+        try:
+            datetime.strptime(dob, '%Y-%m-%d')
+        except ValueError:
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('Invalid date format.')),
+                size_hint=(0.6, 0.4)
+            ).open()
+            return
+        # Ensure user ID present
+        if not hasattr(app, 'current_user_id') or app.current_user_id is None:
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('User not found. Please login again.')),
+                size_hint=(0.6, 0.4)
+            ).open()
+            self.manager.current = 'login'
+            return
+        user_id = app.current_user_id
+        res = update_user_details(user_id, address, dob, religion)
+        if res.get('success'):
+            Popup(
+                title=app.get_translations('Success'),
+                content=Label(text=app.get_translations('Details saved!')),
+                size_hint=(0.6, 0.4)
+            ).open()
+            # Navigate onward
+            self.manager.current = 'map'
+        else:
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('Could not save details: ') + res.get('error', '')),
+                size_hint=(0.6, 0.4)
+            ).open()
+
+    def open_date_picker(self):
+        date_dialog = MDDatePicker()
+        date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
+        date_dialog.open()
+
+    def on_save(self, instance, value, date_range):
+        # value is datetime.date
+        self.ids.dob_input.text = value.strftime('%Y-%m-%d')
+
+    def on_cancel(self, instance, value):
+        pass
+
+    def submit_form(self):
+        app = App.get_running_app()
+        address = self.ids.address_input.text.strip()
+        dob = self.ids.dob_input.text.strip()
+        religion = self.ids.religion_spinner.text.strip()
+        if not (address and dob and religion and religion != app.get_translations('Select Religion')):
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('All fields required')),
+                size_hint=(0.6, 0.4)
+            ).open()
+            return
+        try:
+            datetime.strptime(dob, '%Y-%m-%d')
+        except ValueError:
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('Invalid date format.')),
+                size_hint=(0.6, 0.4)
+            ).open()
+            return
+        if not hasattr(app, 'current_user_id') or app.current_user_id is None:
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('User not found. Please login again.')),
+                size_hint=(0.6, 0.4)
+            ).open()
+            self.manager.current = 'login'
+            return
+        user_id = app.current_user_id
+        res = update_user_details(user_id, address, dob, religion)
+        if res.get('success'):
+            Popup(
+                title=app.get_translations('Success'),
+                content=Label(text=app.get_translations('Details saved!')),
+                size_hint=(0.6, 0.4)
+            ).open()
+            # Navigate onward, e.g., to main map
+            self.manager.current = 'map'
+        else:
+            Popup(
+                title=app.get_translations('Error'),
+                content=Label(text=app.get_translations('Could not save details: ') + res.get('error','')),
+                size_hint=(0.6, 0.4)
+            ).open()
 
 
 class GuestScreen(Screen):
     def explore_as_guest(self):
-        # Set guest flag in app
         app = App.get_running_app()
         app.is_guest = True
-
-        # Navigate to map screen with guest restrictions
         self.manager.current = 'map'
-
-        # Optional: Show toast message
-        from kivy.clock import Clock
-        from kivy.uix.popup import Popup
-        from kivy.uix.label import Label
-
-        popup = Popup(title='Guest Mode',
-                      content=Label(text='Exploring in guest mode with limited features'),
-                      size_hint=(0.7, 0.2))
-        popup.open()
-        Clock.schedule_once(lambda dt: popup.dismiss(), 2)
+        Popup(
+            title=app.get_translations('Guest Mode'),
+            content=Label(text=app.get_translations('Exploring in guest mode with limited features')),
+            size_hint=(0.7, 0.2)
+        ).open()
 
     def go_to_signup(self):
         self.manager.current = 'signup'
@@ -209,148 +482,59 @@ class GuestScreen(Screen):
         self.manager.current = 'login'
 
 
-class DivineMapsApp(App):
+class DivineMapsApp(MDApp):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.i18n = {'locale': 'en'}
-        self.translations = self.load_translations()
+        self.locale = 'en'
+        self.translations = {}
+        self.current_user_id = None
+        # OTP data removed entirely
+        self.load_translations()
 
     def load_translations(self):
-        return {
-            'en': {
-                'Divine Maps': 'Divine Maps',
-                'Spiritual Exploration Made Simple': 'Spiritual Exploration Made Simple',
-                'Login': 'Login',
-                'Sign Up': 'Sign Up',
-                'Continue as Guest': 'Continue as Guest',
-                'Forgot Password': 'Forgot Password',
-                'Terms': 'Terms',
-                'Privacy': 'Privacy',
-                'Version v1.0.0': 'Version v1.0.0',
-                'Quote': '"Faith is seeing light with your heart when all your eyes see is darkness"',
-                'Enter username': 'Enter username',
-                'Enter password': 'Enter password',
-                'Terms and Conditions': 'Terms and Conditions',
-                'Privacy Policy': 'Privacy Policy',
-                'Back': 'Back',
-                'Continue as Guest': 'Continue as Guest',
-                'You can:': 'You can:',
-                'Browse all sacred sites': 'Browse all sacred sites',
-                'View site details': 'View site details',
-                'Get directions': 'Get directions',
-                'Guest limitations:': 'Guest limitations:',
-                'Cannot save favorites': 'Cannot save favorites',
-                'No personalized recommendations': 'No personalized recommendations',
-                'Limited access to community features': 'Limited access to community features',
-                'Explore Now': 'Explore Now',
-                'Create Account': 'Create Account',
-                'terms_content': """
-        1. Acceptance of Terms:
-        By using Divine Maps, you agree to be bound by these Terms and Conditions...
-
-        2. User Accounts:
-        You are responsible for maintaining the confidentiality of your account...
-
-        [More detailed terms content here...]""",
-                'privacy_content': """
-        1. Information We Collect
-        We collect personal information when you register...
-
-        2. How We Use Information
-        We use your information to provide and improve our services...
-
-        [More detailed privacy content here...]"""
-            },
-            'hi': {
-                'Divine Maps': 'दिव्य मानचित्र',
-                'Spiritual Exploration Made Simple': 'आध्यात्मिक अन्वेषण सरल बनाया',
-                'Login': 'लॉग इन करें',
-                'Sign Up': 'साइन अप करें',
-                'Continue as Guest': 'अतिथि के रूप में जारी रखें',
-                'Forgot Password': 'पासवर्ड भूल गए',
-                'Terms': 'नियम और शर्तें',
-                'Privacy': 'गोपनीयता',
-                'Version v1.0.0': 'संस्करण v1.0.0',
-                'Quote': '"विश्वास वह है जब आपके हृदय से प्रकाश आता है, भले ही आँखें अंधकार देखें"',
-                'Enter username': 'उपयोगकर्ता नाम दर्ज करें',
-                'Enter password': 'पासवर्ड दर्ज करें',
-                'Terms and Conditions': 'नियम और शर्तें',
-                'Privacy Policy': 'गोपनीयता नीति',
-                'Back': 'वापस',
-                'You can:': 'आप यह कर सकते हैं:',
-                'Browse all sacred sites': 'सभी पवित्र स्थलों को ब्राउज़ करें',
-                'View site details': 'साइट विवरण देखें',
-                'Get directions': 'दिशा-निर्देश प्राप्त करें',
-                'Guest limitations:': 'अतिथि सीमाएँ:',
-                'Cannot save favorites': 'पसंदीदा सहेज नहीं सकते',
-                'No personalized recommendations': 'कोई व्यक्तिगत सिफारिशें नहीं',
-                'Limited access to community features': 'सामुदायिक सुविधाओं तक सीमित पहुंच',
-                'Explore Now': 'अभी एक्सप्लोर करें',
-                'Create Account': 'खाता बनाएं',
-                'terms_content': """
-        1. नियमों की स्वीकृति
-        दिव्य मानचित्र का उपयोग करके, आप इन नियमों और शर्तों से बंधे होने के लिए सहमत होते हैं...
-
-        [More Hindi content here...]""",
-                'privacy_content': """
-        1. हम कौन सी जानकारी एकत्र करते हैं
-        जब आप पंजीकरण करते हैं तो हम व्यक्तिगत जानकारी एकत्र करते हैं...
-
-        [More Hindi content here...]"""
-            },
-            'kn': {
-                'Divine Maps': 'ದಿವ್ಯ ನಕ್ಷೆಗಳು',
-                'Spiritual Exploration Made Simple': 'ಆಧ್ಯಾತ್ಮಿಕ ಅನ್ವೇಷಣೆಯನ್ನು ಸರಳಗೊಳಿಸಲಾಗಿದೆ',
-                'Login': 'ಲಾಗಿನ್',
-                'Sign Up': 'ಸೈನ್ ಅಪ್',
-                'Continue as Guest': 'ಅತಿಥಿಯಾಗಿ ಮುಂದುವರಿಸಿ',
-                'Forgot Password': 'ಪಾಸ್ವರ್ಡ್ ಮರೆತಿರಾ',
-                'Terms': 'ನಿಯಮಗಳು',
-                'Privacy': 'ಗೌಪ್ಯತೆ',
-                'Version v1.0.0': 'ಆವೃತ್ತಿ v1.0.0',
-                'Quote': '"ನಂಬಿಕೆ ಎಂದರೆ ನಿಮ್ಮ ಹೃದಯದಿಂದ ಬೆಳಕನ್ನು ನೋಡುವುದು, ನಿಮ್ಮ ಕಣ್ಣುಗಳು ಕೇವಲ ಕತ್ತಲೆಯನ್ನು ನೋಡಿದಾಗ"',
-                'Enter username': 'ಬಳಕೆದಾರ ಹೆಸರನ್ನು ನಮೂದಿಸಿ',
-                'Enter password': 'ಗುಪ್ತಪದವನ್ನು ನಮೂದಿಸಿ',
-                'Terms and Conditions': 'ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು',
-                'Privacy Policy': 'ಗೌಪ್ಯತಾ ನೀತಿ',
-                'Back': 'ಹಿಂದಕ್ಕೆ',
-                'You can:': 'ನೀವು ಇದನ್ನು ಮಾಡಬಹುದು:',
-                'Browse all sacred sites': 'ಎಲ್ಲಾ ಪವಿತ್ರ ಸ್ಥಳಗಳನ್ನು ಬ್ರೌಸ್ ಮಾಡಿ',
-                'View site details': 'ಸೈಟ್ ವಿವರಗಳನ್ನು ವೀಕ್ಷಿಸಿ',
-                'Get directions': 'ದಿಕ್ಕುಗಳನ್ನು ಪಡೆಯಿರಿ',
-                'Guest limitations:': 'ಅತಿಥಿ ಮಿತಿಗಳು:',
-                'Cannot save favorites': 'ಮೆಚ್ಚಿನವುಗಳನ್ನು ಉಳಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ',
-                'No personalized recommendations': 'ವೈಯಕ್ತಿಕ ಶಿಫಾರಸುಗಳಿಲ್ಲ',
-                'Limited access to community features': 'ಸಮುದಾಯ ವೈಶಿಷ್ಟ್ಯಗಳಿಗೆ ಸೀಮಿತ ಪ್ರವೇಶ',
-                'Explore Now': 'ಈಗ ಅನ್ವೇಷಿಸಿ',
-                'Create Account': 'ಖಾತೆ ರಚಿಸಿ',
-                'terms_content': """
-        1. ನಿಯಮಗಳ ಸ್ವೀಕಾರ
-        ದಿವ್ಯ ನಕ್ಷೆಗಳನ್ನು ಬಳಸುವ ಮೂಲಕ, ನೀವು ಈ ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳಿಗೆ ಬದ್ಧರಾಗಿರುತ್ತೀರಿ...
-
-        [More Kannada content here...]""",
-                'privacy_content': """
-        1. ನಾವು ಸಂಗ್ರಹಿಸುವ ಮಾಹಿತಿ
-        ನೀವು ನೋಂದಾಯಿಸಿದಾಗ ನಾವು ವೈಯಕ್ತಿಕ ಮಾಹಿತಿಯನ್ನು ಸಂಗ್ರಹಿಸುತ್ತೇವೆ...
-
-        [More Kannada content here...]"""
-            }
-        }
+        base = os.path.join(os.path.dirname(__file__), 'translations')
+        for loc in ('en', 'hi', 'kn'):
+            path = os.path.join(base, f"{loc}.yml")
+            try:
+                with open(path, encoding='utf-8') as f:
+                    data = yaml.safe_load(f) or {}
+                    self.translations[loc] = data
+            except Exception as e:
+                print(f"Error loading translations for {loc}: {e}")
+                self.translations[loc] = {}
 
     def get_translations(self, key):
-        current_lang = self.i18n['locale']
-        return self.translations.get(current_lang, {}).get(
-            key, self.translations.get('en', {}).get(key, key)
-        )
+        data = self.translations.get(self.locale, {})
+        if key in data:
+            return data[key]
+        # fallback to English
+        en = self.translations.get('en', {})
+        return en.get(key, key)
+
+    def set_locale(self, locale_code):
+        if locale_code in self.translations:
+            self.locale = locale_code
+        else:
+            self.locale = 'en'
+        # Refresh screens:
+        if hasattr(self, 'root') and self.root:
+            for screen in self.root.screens:
+                if hasattr(screen, 'on_pre_enter'):
+                    try:
+                        screen.on_pre_enter()
+                    except:
+                        pass
 
     def build(self):
         sm = ScreenManager()
         sm.add_widget(LoginScreen(name='login'))
         sm.add_widget(SignUpScreen(name='signup'))
-        sm.add_widget(ForgotPasswordScreen(name='forgot'))
+        sm.add_widget(DetailsScreen(name='details'))
         sm.add_widget(TermsScreen(name='terms'))
+        sm.add_widget(ForgotPasswordScreen(name='forgot'))
         sm.add_widget(PrivacyScreen(name='privacy'))
         sm.add_widget(GuestScreen(name='guest'))
+        # Add MapScreen(name='map'), AdminScreen, etc.
         return sm
 
 
