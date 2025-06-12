@@ -184,7 +184,50 @@ class DataManager:
             if conn and conn.is_connected():
                 conn.close()
 
+    @staticmethod
+    def get_user_by_id(user_id):
+        """Return a user record by user_id (as a dict), or None if not found."""
+        query = "SELECT * FROM users WHERE user_id = %s"
+        return DataManager._execute_query(query, (user_id,), fetch_one=True)
 
+    @staticmethod
+    def fetch_sites_by_religion(religion):
+        """
+        Return sites filtered by religion. If religion is None, returns all sites.
+        Ordered by name.
+        """
+        if religion is None:
+            query = "SELECT * FROM sites ORDER BY name"
+            return DataManager._execute_query(query)
+        else:
+            query = "SELECT * FROM sites WHERE religion = %s ORDER BY name"
+            return DataManager._execute_query(query, (religion,))
+
+    @staticmethod
+    def update_user_religion(user_id, new_religion):
+        """
+        Update the religion for the user with the given user_id.
+        Returns {"success": True} if exactly one row was updated,
+                or {"success": False, "error": <message>} otherwise.
+        """
+        conn = None
+        cursor = None
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            update_query = "UPDATE users SET religion = %s WHERE user_id = %s"
+            cursor.execute(update_query, (new_religion, user_id))
+            conn.commit()
+            if cursor.rowcount == 0:
+                return {"success": False, "error": "User not found."}
+            return {"success": True}
+        except Error as e:
+            return {"success": False, "error": str(e)}
+        finally:
+            if cursor:
+                cursor.close()
+            if conn and conn.is_connected():
+                conn.close()
 # Expose module‐level functions
 fetch_all_sites          = DataManager.fetch_all_sites
 fetch_site_by_id         = DataManager.fetch_site_by_id
@@ -197,3 +240,6 @@ register_user            = DataManager.register_user
 get_user_by_email        = DataManager.get_user_by_email
 update_password          = DataManager.update_password
 update_user_details      = DataManager.update_user_details
+get_user_by_id = DataManager.get_user_by_id
+fetch_sites_by_religion = DataManager.fetch_sites_by_religion
+update_user_religion = DataManager.update_user_religion

@@ -1,0 +1,131 @@
+<HomeScreen>:
+    name: 'home'
+    FloatLayout:
+        Image:
+            source: 'data/bg.jpg'
+            allow_stretch: True
+            keep_ratio: False
+            opacity: 0.3
+            size: root.size
+            pos: root.pos
+
+    MDBoxLayout:
+        orientation: 'vertical'
+        size_hint: None, None
+        size: dp(150), dp(150)
+        pos_hint: {"center_x": 0.5, "center_y":0.5}
+        padding: dp(10)
+
+        Image:
+            source: "data/logo.jpg"
+            size_hint: 1, 1
+            allow_stretch: True
+            keep_ratio: True
+
+    MDBoxLayout:
+        orientation: 'vertical'
+
+        MDLabel:
+            id: welcome_label
+            text: "Welcome, User!"
+            halign: "center"
+            font_style: "H5"
+            size_hint_y: None
+            height: dp(60)
+
+        MDTopAppBar:
+            title: "Divine Maps"
+            elevation: 10
+            left_action_items: [['menu', lambda x: app.root.toggle_nav_drawer()]]
+            right_action_items: [['cog', root.go_to_settings]]
+
+        MDBoxLayout:
+            orientation: 'vertical'
+            padding: dp(30)
+            spacing: dp(20)
+            pos_hint: {'center_y': 0.5}
+            size_hint_y: 1
+
+            MDGridLayout:
+                cols: 2
+                spacing: dp(20)
+                size_hint: None, None
+                pos_hint: {"center_x": 0.5}
+                height: self.minimum_height
+                width: dp(500)
+
+                MDRaisedButton:
+                    on_release: root.manager.current = 'map'
+                    size_hint: None, None
+                    size: dp(200), dp(60)
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: dp(10)
+                        padding: dp(10)
+                        MDIcon:
+                            icon: "map-marker"
+                        MDLabel:
+                            text: "Explore Sacred Sites"
+                            halign: "center"
+
+                MDRaisedButton:
+                    on_release: root.go_to_favorites()
+                    size_hint: None, None
+                    size: dp(200), dp(60)
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: dp(10)
+                        padding: dp(10)
+                        MDIcon:
+                            icon: "heart"
+                        MDLabel:
+                            text: "My Favorites"
+                            halign: "center"
+
+                MDRaisedButton:
+                    on_release: root.go_to_planner()
+                    size_hint: None, None
+                    size: dp(200), dp(60)
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: dp(10)
+                        padding: dp(10)
+                        MDIcon:
+                            icon: "calendar"
+                        MDLabel:
+                            text: "Pilgrimage Planner"
+                            halign: "center"
+
+                MDRaisedButton:
+                    on_release: root.go_to_log()
+                    size_hint: None, None
+                    size: dp(200), dp(60)
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        spacing: dp(10)
+                        padding: dp(10)
+                        MDIcon:
+                            icon: "file-document-outline"
+                        MDLabel:
+                            text: "Activity Log"
+                            halign: "center"
+
+            MDRaisedButton:
+                text: "Settings"
+                icon: "cog"
+                size_hint: None, None
+                size: dp(200), dp(50)
+                pos_hint: {'center_x': 0.5}
+                on_release: root.go_to_settings()
+
+            MDRaisedButton:
+                text: "Logout"
+                icon: "logout"
+                size_hint: None, None
+                size: dp(200), dp(50)
+                pos_hint: {'center_x': 0.5}
+                on_release:
+                    app.current_user_id = None
+                    root.manager.current = 'login'
+
+
