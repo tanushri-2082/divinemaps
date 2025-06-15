@@ -8,15 +8,18 @@ from datetime import datetime
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.resources import resource_find
-
+from kivy.properties import BooleanProperty
+from kivy.uix.popup import Popup
+from kivy.uix.textinput import TextInput
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from mysql.connector import Error
 from kivymd.app import MDApp
 from kivymd.uix.pickers.datepicker import MDDatePicker
-from kivymd.uix.button import MDIconButton  # for calendar icon
-from kivymd.uix.button import MDRaisedButton  # for “Continue” button styling
-
+from kivymd.uix.button import MDRaisedButton
+from kivymd.uix.menu import MDDropdownMenu
 
 from app.data_manager import (
     fetch_all_sites,
@@ -24,7 +27,16 @@ from app.data_manager import (
     get_user_by_email,
     update_password,
     update_user_details,
-    validate_user_credentials
+    get_user_by_id,
+    submit_rating,
+    submit_feedback,
+    validate_user_credentials,
+    fetch_sites_by_religion,
+    update_user_religion,
+    toggle_explore_mode,
+    get_connection,
+    update_user_address
+
 )
 
 # Load KV files
@@ -38,7 +50,7 @@ Builder.load_file('ui/home.kv')
 Builder.load_file('ui/guest.kv')
 Builder.load_file('ui/admin.kv')
 Builder.load_file('ui/settings.kv')
-
+Builder.load_file('ui/religion.kv')
 
 class LoginScreen(Screen):
     def on_pre_enter(self):
@@ -482,17 +494,41 @@ class GuestScreen(Screen):
     def go_back(self):
         self.manager.current = 'login'
 
+class HomeScreen(Screen):
+    def get_translations(self, key):
+        app = App.get_running_app()
+        return app.get_translations(key)
+
+    def go_to_settings(self, *args):
+        self.manager.current = 'settings'
+
+    def go_to_favorites(self, *args):
+        # Replace with actual screen or popup
+        print("Favorites clicked")
+
+    def go_to_planner(self, *args):
+        # Replace with actual screen or popup
+        print("Planner clicked")
+
+    def go_to_log(self, *args):
+        # Replace with actual screen or popup
+        print("Log clicked")
+
 
 class ReligionScreen(Screen):
-    def on_pre_enter(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.current_religion = 'No Preference'
+        self.menu = None
+
+    def on_pre_enter(self, *args):
         app = App.get_running_app()
-        # Load user's religion from database
         if hasattr(app, 'current_user_id') and app.current_user_id:
-            user = get_user_by_id(app.current_user_id)  # Implement this in data_manager.py
+            user = get_user_by_id(app.current_user_id)
             if user:
                 self.current_religion = user.get('religion', 'No Preference')
-                self.update_content()
-                self.update_translations()
+        self.update_content()
+        self.update_translations()
 
     def update_translations(self):
         app = App.get_running_app()
@@ -514,52 +550,21 @@ class ReligionScreen(Screen):
         elif self.current_religion == 'No Preference':
             content_label.text = app.get_translations(
                 'Showing information for all religions (recommended for tourists)')
-            # Load all religious sites
-            sites = fetch_sites_by_religion(None)  # Implement this in data_manager.py
-            content_label.text += "\n\n" + "\n".join([f"{site['name']} - {site['description']}" for site in sites])
+            sites = fetch_sites_by_religion(None)
+            if sites:
+                content_label.text += "\n\n" + "\n".join([f"{site['name']} - {site['description']}" for site in sites])
             return
 
-        # Religion-specific content based on your database
         religion_content = {
-            'Hinduism': "Hinduism is one of the world's oldest religions with diverse traditions.\n\n" +
-                        "Nearby Hindu Temples:\n" +
-                        "1. ISKCON Temple Bangalore - One of the largest ISKCON temples in the world\n" +
-                        "   Location: Rajajinagar, Bangalore\n" +
-                        "   Timings: 4:15 AM to 1:00 PM, 4:15 PM to 8:30 PM\n" +
-                        "   Features: Vegetarian food court, Vedic museum",
-
-            'Islam': "Islam is a monotheistic Abrahamic religion.\n\n" +
-                     "Nearby Mosques:\n" +
-                     "1. Masjid-E-Mhadriya - A prominent mosque with striking domes\n" +
-                     "   Location: Hillets Road, Bangalore\n" +
-                     "   Timings: 5:00 AM to 10:00 PM\n" +
-                     "   Features: Large Eid congregations",
-
-            'Christianity': "Christianity is based on the teachings of Jesus Christ.\n\n" +
-                            "Nearby Churches:\n" +
-                            "1. St. Mary's Basilica - One of the oldest churches in Bangalore\n" +
-                            "   Location: Shivajinagar, Bangalore\n" +
-                            "   Timings: 6:00 AM to 7:00 PM\n" +
-                            "   Features: Gothic architecture",
-
-            'Jainism': "Jainism emphasizes non-violence and asceticism.\n\n" +
-                       "Nearby Jain Temples:\n" +
-                       "1. Sri Mahaveer Digambar Jain Temple - Important Jain temple\n" +
-                       "   Location: Chikopet, Bangalore\n" +
-                       "   Timings: 6:00 AM to 8:00 PM\n" +
-                       "   Features: Silent meditation area",
-
-            'Buddhism': "Buddhism focuses on spiritual development and enlightenment.\n\n" +
-                        "Nearby Buddhist Sites:\n" +
-                        "Information coming soon...",
-
-            'Sikhism': "Sikhism emphasizes faith and justice.\n\n" +
-                       "Nearby Gurudwaras:\n" +
-                       "Information coming soon..."
+            'Hinduism': "Hinduism is one of the world's oldest religions...",
+            'Islam': "Islam is a monotheistic Abrahamic religion...",
+            'Christianity': "Christianity is based on the teachings...",
+            'Jainism': "Jainism emphasizes non-violence...",
+            'Buddhism': "Buddhism focuses on spiritual development...",
+            'Sikhism': "Sikhism emphasizes faith and justice..."
         }.get(self.current_religion, '')
 
-        # Add sites specific to this religion
-        sites = fetch_sites_by_religion(self.current_religion)  # Implement this in data_manager.py
+        sites = fetch_sites_by_religion(self.current_religion)
         if sites:
             religion_content += "\n\nNearby Places of Worship:\n"
             for site in sites:
@@ -587,6 +592,9 @@ class ReligionScreen(Screen):
             } for religion in religions
         ]
 
+        if self.menu:
+            self.menu.dismiss()
+
         self.menu = MDDropdownMenu(
             caller=self.ids.change_button,
             items=menu_items,
@@ -597,47 +605,236 @@ class ReligionScreen(Screen):
     def change_religion(self, new_religion):
         app = App.get_running_app()
         if hasattr(app, 'current_user_id') and app.current_user_id:
-            # Update in database
-            result = update_user_religion(app.current_user_id, new_religion)  # Implement this in data_manager.py
+            result = update_user_religion(app.current_user_id, new_religion)
             if result.get('success'):
                 self.current_religion = new_religion
                 self.update_content()
-                Popup(
-                    title=app.get_translations('Success'),
-                    content=Label(text=app.get_translations('Religion updated')),
-                    size_hint=(0.6, 0.4)
-                ).open()
+                self.show_popup(
+                    app.get_translations('Success'),
+                    app.get_translations('Religion updated')
+                )
             else:
-                Popup(
-                    title=app.get_translations('Error'),
-                    content=Label(text=app.get_translations('Failed to update religion')),
-                    size_hint=(0.6, 0.4)
-                ).open()
-class HomeScreen(Screen):
-    def get_translations(self, key):
-        app = App.get_running_app()
-        return app.get_translations(key)
+                self.show_popup(
+                    app.get_translations('Error'),
+                    app.get_translations('Failed to update religion')
+                )
 
-    def go_to_settings(self, *args):
-        self.manager.current = 'settings'
+    def show_popup(self, title, message):
+        Popup(
+            title=title,
+            content=Label(text=message),
+            size_hint=(0.6, 0.4)
+        ).open()
 
-    def go_to_favorites(self, *args):
-        # Replace with actual screen or popup
-        print("Favorites clicked")
-
-    def go_to_planner(self, *args):
-        # Replace with actual screen or popup
-        print("Planner clicked")
-
-    def go_to_log(self, *args):
-        # Replace with actual screen or popup
-        print("Log clicked")
+    def go_back(self):
+        self.manager.current = 'home'
 
 
 
 class SettingsScreen(Screen):
-    pass
+    explore_mode = BooleanProperty(False)
 
+    def on_pre_enter(self):
+        # Load current settings
+        app = App.get_running_app()
+        if hasattr(app, 'current_user_id') and app.current_user_id:
+            user = get_user_by_id(app.current_user_id)
+            if user:
+                self.explore_mode = user.get('explore_mode', False)
+                self.ids.explore_mode_toggle.state = 'down' if self.explore_mode else 'normal'
+                self.ids.explore_mode_toggle.text = f'Explore Mode: {"ON" if self.explore_mode else "OFF"}'
+
+    def toggle_explore_mode(self, state):
+        self.explore_mode = state == 'down'
+        self.ids.explore_mode_toggle.text = f'Explore Mode: {"ON" if self.explore_mode else "OFF"}'
+
+        # Save to database
+        app = App.get_running_app()
+        if hasattr(app, 'current_user_id') and app.current_user_id:
+            result = toggle_explore_mode(app.current_user_id, self.explore_mode)
+            if result.get('success'):
+                pass  # Successfully updated
+            else:
+                self.show_popup("Error", result.get('error', 'Failed to update explore mode'))
+
+    def show_address_dialog(self):
+        app = App.get_running_app()
+
+        # Get current address if available
+        current_address = ""
+        if hasattr(app, 'current_user_id') and app.current_user_id:
+            user = get_user_by_id(app.current_user_id)
+            if user:
+                current_address = user.get('address', '')
+
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        address_input = TextInput(
+            hint_text='Enter your full address',
+            text=current_address,
+            multiline=True,
+            size_hint_y=0.7
+        )
+        content.add_widget(address_input)
+
+        dialog = Popup(
+            title='Change Address',
+            content=content,
+            size_hint=(0.8, 0.5))
+
+        def save_address(instance):
+            new_address = address_input.text.strip()
+            if not new_address:
+                self.show_popup("Error", "Address cannot be empty")
+                return
+
+            if hasattr(app, 'current_user_id') and app.current_user_id:
+                # Use the new dedicated method
+                result = update_user_address(app.current_user_id, new_address)
+
+                if result.get('success'):
+                    self.show_popup("Success", "Address updated successfully")
+                    dialog.dismiss()
+                else:
+                    self.show_popup("Error", result.get('error', 'Failed to update address'))
+
+        buttons = BoxLayout(spacing=5, size_hint_y=0.2)
+        buttons.add_widget(Button(text='Cancel', on_release=dialog.dismiss))
+        buttons.add_widget(Button(text='Save', on_release=save_address))
+
+        content.add_widget(buttons)
+        dialog.open()
+
+    def show_username_dialog(self):
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        content.add_widget(Label(text='Enter new username:'))
+        username_input = TextInput(multiline=False)
+        content.add_widget(username_input)
+
+        dialog = Popup(
+            title='Change Username',
+            content=content,
+            size_hint=(0.8, 0.4)
+        )
+
+        def update_username(instance):
+            new_username = username_input.text.strip()
+            if new_username:
+                app = App.get_running_app()
+                if hasattr(app, 'current_user_id') and app.current_user_id:
+                    conn = get_connection()
+                    try:
+                        cursor = conn.cursor()
+                        cursor.execute(
+                            "SELECT user_id FROM users WHERE username = %s AND user_id != %s",
+                            (new_username, app.current_user_id)
+                        )
+                        if cursor.fetchone():
+                            self.show_popup("Error", "Username already taken")
+                            return
+
+                        cursor.execute(
+                            "UPDATE users SET username = %s WHERE user_id = %s",
+                            (new_username, app.current_user_id)
+                        )
+                        conn.commit()
+                        self.show_popup("Success", "Username updated successfully")
+                    except Error as e:
+                        self.show_popup("Error", f"Failed to update username: {str(e)}")
+                    finally:
+                        if conn and conn.is_connected():
+                            conn.close()
+            dialog.dismiss()
+
+        content.add_widget(Button(text='Update', on_release=update_username))
+        dialog.open()
+
+    def show_password_dialog(self):
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        content.add_widget(Label(text='Current password:'))
+        current_pw = TextInput(password=True, multiline=False)
+        content.add_widget(current_pw)
+
+        content.add_widget(Label(text='New password:'))
+        new_pw = TextInput(password=True, multiline=False)
+        content.add_widget(new_pw)
+
+        content.add_widget(Label(text='Confirm new password:'))
+        confirm_pw = TextInput(password=True, multiline=False)
+        content.add_widget(confirm_pw)
+
+        dialog = Popup(
+            title='Change Password',
+            content=content,
+            size_hint=(0.8, 0.6)
+        )
+
+        def update_password(instance):
+            if not new_pw.text or len(new_pw.text) < 6:
+                self.show_popup("Error", "Password must be at least 6 characters")
+                return
+
+            if new_pw.text != confirm_pw.text:
+                self.show_popup("Error", "Passwords don't match")
+                return
+
+            app = App.get_running_app()
+            if hasattr(app, 'current_user_id') and app.current_user_id:
+                current_hash = hashlib.sha256(current_pw.text.encode()).hexdigest()
+                user = validate_user_credentials(app.current_user.username, current_hash)
+                if not user:
+                    self.show_popup("Error", "Current password is incorrect")
+                    return
+
+                new_hash = hashlib.sha256(new_pw.text.encode()).hexdigest()
+                result = update_password(app.current_user.email, new_hash)
+                if result.get('success'):
+                    self.show_popup("Success", "Password updated successfully")
+                    dialog.dismiss()
+                else:
+                    self.show_popup("Error", result.get('error', 'Failed to update password'))
+
+        content.add_widget(Button(text='Update', on_release=update_password))
+        dialog.open()
+
+    def rate_app(self, stars):
+        app = App.get_running_app()
+        if not hasattr(app, 'current_user_id') or not app.current_user_id:
+            self.show_popup("Error", "Please login to rate the app")
+            return
+
+        result = submit_rating(app.current_user_id, stars)
+        if result.get('success'):
+            self.show_popup("Thank You!", f"Thanks for your {stars} star rating!")
+        else:
+            self.show_popup("Error", "Failed to submit rating. Please try again.")
+
+    def go_back(self):
+        self.manager.current = 'home'
+
+    def submit_feedback(self):
+        feedback = self.ids.feedback_input.text.strip()
+        if not feedback:
+            self.show_popup("Error", "Please enter feedback text")
+            return
+
+        app = App.get_running_app()
+        if not hasattr(app, 'current_user_id') or not app.current_user_id:
+            self.show_popup("Error", "Please login to submit feedback")
+            return
+
+        result = submit_feedback(app.current_user_id, feedback)
+        if result.get('success'):
+            self.ids.feedback_input.text = ''
+            self.show_popup("Thank You!", "Your feedback has been submitted.")
+        else:
+            self.show_popup("Error", "Failed to submit feedback. Please try again.")
+
+    def show_popup(self, title, message):
+        Popup(
+            title=title,
+            content=Label(text=message),
+            size_hint=(0.6, 0.4)
+        ).open()
 
 
 class DivineMapsApp(MDApp):
@@ -646,7 +843,6 @@ class DivineMapsApp(MDApp):
         self.locale = 'en'
         self.translations = {}
         self.current_user_id = None
-        # OTP data removed entirely
         self.load_translations()
 
     def load_translations(self):
@@ -665,7 +861,6 @@ class DivineMapsApp(MDApp):
         data = self.translations.get(self.locale, {})
         if key in data:
             return data[key]
-        # fallback to English
         en = self.translations.get('en', {})
         return en.get(key, key)
 
@@ -674,7 +869,6 @@ class DivineMapsApp(MDApp):
             self.locale = locale_code
         else:
             self.locale = 'en'
-        # Refresh screens:
         if hasattr(self, 'root') and self.root:
             for screen in self.root.screens:
                 if hasattr(screen, 'on_pre_enter'):
@@ -693,9 +887,8 @@ class DivineMapsApp(MDApp):
         sm.add_widget(PrivacyScreen(name='privacy'))
         sm.add_widget(GuestScreen(name='guest'))
         sm.add_widget(HomeScreen(name='home'))
-        sm.add_widget(SettingsScreen(name='settings'))  # ← you need to implement or stub this screen
-
-        # Add MapScreen(name='map'), AdminScreen, etc.
+        sm.add_widget(SettingsScreen(name='settings'))
+        sm.add_widget(ReligionScreen(name='religion'))
         return sm
 
 

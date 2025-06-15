@@ -1,6 +1,202 @@
+# settings.kv
 <SettingsScreen>:
-    name: 'settings'
     BoxLayout:
         orientation: 'vertical'
-        Label:
-            text: 'Settings Page (Coming Soon)'
+        padding: [20, 20]
+        spacing: 40
+
+        # Header with Back Button
+        BoxLayout:
+            size_hint_y: None
+            height: 50
+            spacing: 10
+
+            Button:
+                text: 'Back'
+                color: 1, 1, 1, 1  # Black text
+                background_normal: ''
+                background_color: [0.9, 0.5, 0.2, 1]
+                size_hint: (None, None)
+                size: (100, 50)
+                font_size: '16sp'
+                bold: True
+                on_release: root.manager.current = 'home'
+
+            Label:
+                text: 'Settings'
+                font_size: '58sp'
+                bold: True
+                size_hint_x: 0.8
+                halign: 'center'
+                color: 0, 0, 0, 1
+
+        ScrollView:
+            GridLayout:
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+                spacing: 30
+                padding: [10]
+
+                Button:
+                    text: 'Change Username'
+                    color: 1, 1, 1, 1  # Black text
+                    background_normal: ''
+                    background_color: [0.9, 0.5, 0.2, 1]
+                    size_hint_y: None
+                    height: 60
+                    font_size: '14sp'
+                    bold: True
+                    on_release: root.show_username_dialog()
+
+                Button:
+                    text: 'Change Password'
+                    color: 1, 1, 1, 1  # Black text
+                    background_normal: ''
+                    background_color: [0.9, 0.5, 0.2, 1]
+                    size_hint_y: None
+                    height: 60
+                    font_size: '14sp'
+                    bold: True
+                    on_release: root.show_password_dialog()
+
+                Button:
+                    text: 'Change Address'
+                    color: 1, 1, 1, 1  # Black text
+                    background_normal: ''
+                    background_color: [0.9, 0.5, 0.2, 1]
+                    size_hint_y: None
+                    height: 60
+                    font_size: '14sp'
+                    bold: True
+                    on_release: root.show_address_dialog()
+
+                Button:
+                    text: 'Change Religion'
+                    color: 1, 1, 1, 1  # Black text
+                    background_normal: ''
+                    background_color: [0.9, 0.5, 0.2, 1]
+                    size_hint_y: None
+                    height: 60
+                    font_size: '14sp'
+                    bold: True
+                    on_release: root.manager.current = 'religion'
+
+                ToggleButton:
+                    id: explore_mode_toggle
+                    text: 'Explore Mode: OFF'
+                    color: 1, 1, 1, 1  # Black text
+                    background_normal: ''
+                    background_color: [0.9, 0.5, 0.2, 1]
+                    size_hint_y: None
+                    height: 60
+                    font_size: '14sp'
+                    bold: True
+                    on_state: root.toggle_explore_mode(self.state)
+
+                # App Settings
+
+                Button:
+                    text: 'View Terms of Service'
+                    color: 1, 1, 1, 1  # Black text
+                    background_normal: ''
+                    background_color: [0.9, 0.5, 0.2, 1]
+                    size_hint_y: None
+                    height: 60
+                    font_size: '14sp'
+                    bold: True
+                    on_release: root.manager.current = 'terms'
+
+                Button:
+                    text: 'View Privacy Policy'
+                    color: 1, 1, 1, 1  # Black text
+                    background_normal: ''
+                    background_color: [0.9, 0.5, 0.2, 1]
+                    size_hint_y: None
+                    height: 60
+                    font_size: '14sp'
+                    bold: True
+                    on_release: root.manager.current = 'privacy'
+
+                # Rating Section
+                Label:
+                    text: 'Rate Our App'
+                    font_size: '18sp'
+                    bold: True
+                    size_hint_y: None
+                    height: 40
+                    color: 0, 0, 0, 1  # Black text
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: 60
+                    spacing: 5
+
+                    Button:
+                        text: '1'
+                        color: 1, 1, 1, 1  # White text
+                        background_color: 0.2, 0.6, 1, 1  # Blue
+                        font_size: '14sp'
+                        bold: True
+                        on_release: root.rate_app(1)
+
+                    Button:
+                        text: '2'
+                        color: 1, 1, 1, 1  # White text
+                        background_color: 0.2, 0.6, 1, 1  # Blue
+                        font_size: '14sp'
+                        bold: True
+                        on_release: root.rate_app(2)
+
+                    Button:
+                        text: '3'
+                        color: 1, 1, 1, 1  # White text
+                        background_color: 0.2, 0.6, 1, 1  # Blue
+                        font_size: '14sp'
+                        bold: True
+                        on_release: root.rate_app(3)
+
+                    Button:
+                        text: '4'
+                        color: 1, 1, 1, 1  # White text
+                        background_color: 0.2, 0.6, 1, 1  # Blue
+                        font_size: '14sp'
+                        bold: True
+                        on_release: root.rate_app(4)
+
+                    Button:
+                        text: '5'
+                        color: 1, 1, 1, 1  # White text
+                        background_color: 0.2, 0.6, 1, 1  # Blue
+                        font_size: '14sp'
+                        bold: True
+                        on_release: root.rate_app(5)
+
+                # Feedback Section
+                Label:
+                    text: 'Feedback'
+                    font_size: '18sp'
+                    bold: True
+                    size_hint_y: None
+                    height: 40
+                    color: 0, 0, 0, 1  # Black text
+
+                TextInput:
+                    id: feedback_input
+                    hint_text: 'Describe any issues or suggestions...'
+                    size_hint_y: None
+                    height: 100
+                    multiline: True
+                    background_color: 1, 1, 1, 1
+                    foreground_color: 0, 0, 0, 1  # Black text
+                    font_size: '14sp'
+
+                Button:
+                    text: 'Submit Feedback'
+                    color: 1, 1, 1, 1  # White text
+                    background_color: 0.2, 0.6, 1, 1  # Blue
+                    size_hint_y: None
+                    height: 60
+                    font_size: '14sp'
+                    bold: True
+                    on_release: root.submit_feedback()

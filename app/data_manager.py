@@ -3,15 +3,20 @@
 from app.db import get_connection
 from mysql.connector import Error, IntegrityError
 
+
 class DataManager:
     @staticmethod
-    def _execute_query(query, params=None, fetch_one=False):
+    def _execute_query(query, params=None, fetch_one=False, commit=False):
         conn = None
         cursor = None
         try:
             conn = get_connection()
             cursor = conn.cursor(dictionary=True)
             cursor.execute(query, params or ())
+
+            if commit:
+                conn.commit()
+
             if fetch_one:
                 return cursor.fetchone()
             return cursor.fetchall()
@@ -25,40 +30,53 @@ class DataManager:
                 conn.close()
 
     @staticmethod
+    def _execute_update(query, params=None):
+        conn = None
+        cursor = None
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute(query, params or ())
+            conn.commit()
+            return {"success": True, "affected_rows": cursor.rowcount}
+        except IntegrityError as e:
+            return {"success": False, "error": str(e)}
+        except Error as e:
+            return {"success": False, "error": str(e)}
+        finally:
+            if cursor:
+                cursor.close()
+            if conn and conn.is_connected():
+                conn.close()
+
+    # Site-related operations
+    @staticmethod
     def fetch_all_sites():
-        """Return a list of all religious sites (ordered by name)."""
+        """Return all religious sites ordered by name"""
         query = "SELECT * FROM sites ORDER BY name"
         return DataManager._execute_query(query)
 
     @staticmethod
     def fetch_site_by_id(site_id):
-        """Return details for a single site (lookup by site_id)."""
         query = "SELECT * FROM sites WHERE site_id = %s"
         return DataManager._execute_query(query, (site_id,), fetch_one=True)
 
     @staticmethod
     def fetch_events_by_site(site_id):
-        """
-        Return upcoming events for a given site (event_date >= today),
-        ordered chronologically.
-        """
         query = """
         SELECT * FROM events
-        WHERE site_id = %s
-          AND event_date >= CURDATE()
+        WHERE site_id = %s AND event_date >= CURDATE()
         ORDER BY event_date
         """
         return DataManager._execute_query(query, (site_id,))
 
     @staticmethod
     def fetch_images_by_site(site_id):
-        """Return all image records for a given site (primary images first)."""
         query = "SELECT * FROM images WHERE site_id = %s ORDER BY is_primary DESC, image_id"
         return DataManager._execute_query(query, (site_id,))
 
     @staticmethod
     def fetch_reviews_by_site(site_id, limit=None):
-        """Return all reviews for a given site, optionally limited in number."""
         query = """
         SELECT r.*, u.username
         FROM reviews r
@@ -71,175 +89,146 @@ class DataManager:
         return DataManager._execute_query(query, (site_id,))
 
     @staticmethod
-    def fetch_user(username):
-        """Return a user record by username (as a dict), or None if not found."""
-        query = "SELECT * FROM users WHERE username = %s"
-        return DataManager._execute_query(query, (username,), fetch_one=True)
+    def fetch_sites_by_religion(religion):
+        if religion is None:
+            query = "SELECT * FROM sites ORDER BY name"
+            return DataManager._execute_query(query)
+        query = "SELECT * FROM sites WHERE religion = %s ORDER BY name"
+        return DataManager._execute_query(query, (religion,))
 
-    @staticmethod
-    def validate_user_credentials(username, password_hash):
-        """
-        Validate user credentials. If you store hashed passwords, pass the hash.
-        Returns {user_id, username, role} if credentials match, else None.
-        """
-        query = """
-        SELECT user_id, username, role
-        FROM users
-        WHERE username = %s
-          AND password_hash = %s
-        """
-        return DataManager._execute_query(query, (username, password_hash), fetch_one=True)
-
-    @staticmethod
-    def register_user(username, email, password_hash):
-        """
-        Insert a new user row into users(username, email, password_hash, role='user').
-        On success: return {"success": True, "user_id": <new_id>}.
-        On failure (e.g. duplicate username/email): return {"success": False, "error": <message>}.
-        """
-        insert_query = """
-            INSERT INTO users (username, email, password_hash, role)
-            VALUES (%s, %s, %s, 'user')
-        """
-        conn = None
-        cursor = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            cursor.execute(insert_query, (username, email, password_hash))
-            conn.commit()
-            return {"success": True, "user_id": cursor.lastrowid}
-        except IntegrityError:
-            return {"success": False, "error": "Username or Email already in use."}
-        except Error as e:
-            return {"success": False, "error": str(e)}
-        finally:
-            if cursor:
-                cursor.close()
-            if conn and conn.is_connected():
-                conn.close()
-
-    @staticmethod
-    def get_user_by_email(email):
-        """
-        Return a single user row (as a dict) if that email is registered.
-        Otherwise returns None.
-        """
-        query = "SELECT user_id, username, email FROM users WHERE email = %s"
-        return DataManager._execute_query(query, (email,), fetch_one=True)
-
-    @staticmethod
-    def update_password(email, new_password_hash):
-        """
-        Update the password_hash for the user with the given email.
-        Returns {"success": True} if exactly one row was updated,
-                or {"success": False, "error": <message>} otherwise.
-        """
-        conn = None
-        cursor = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            update_query = "UPDATE users SET password_hash = %s WHERE email = %s"
-            cursor.execute(update_query, (new_password_hash, email))
-            conn.commit()
-            if cursor.rowcount == 0:
-                return {"success": False, "error": "Email not found."}
-            return {"success": True}
-        except Error as e:
-            return {"success": False, "error": str(e)}
-        finally:
-            if cursor:
-                cursor.close()
-            if conn and conn.is_connected():
-                conn.close()
-
-    @staticmethod
-    def update_user_details(user_id, address, dob_str, religion):
-        """
-        Update address, dob, religion for given user_id.
-        Expects `dob_str` in 'YYYY-MM-DD' format.
-        """
-        conn = None
-        cursor = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            query = """
-                UPDATE users
-                SET address = %s, dob = %s, religion = %s
-                WHERE user_id = %s
-            """
-            cursor.execute(query, (address, dob_str, religion, user_id))
-            conn.commit()
-            if cursor.rowcount == 1:
-                return {"success": True}
-            else:
-                return {"success": False, "error": "No row updated"}
-        except Error as e:
-            return {"success": False, "error": str(e)}
-        finally:
-            if cursor:
-                cursor.close()
-            if conn and conn.is_connected():
-                conn.close()
-
+    # User-related operations
     @staticmethod
     def get_user_by_id(user_id):
-        """Return a user record by user_id (as a dict), or None if not found."""
         query = "SELECT * FROM users WHERE user_id = %s"
         return DataManager._execute_query(query, (user_id,), fetch_one=True)
 
     @staticmethod
-    def fetch_sites_by_religion(religion):
+    def fetch_user(username):
+        query = "SELECT * FROM users WHERE username = %s"
+        return DataManager._execute_query(query, (username,), fetch_one=True)
+
+    @staticmethod
+    def get_user_by_email(email):
+        query = "SELECT user_id, username, email FROM users WHERE email = %s"
+        return DataManager._execute_query(query, (email,), fetch_one=True)
+
+    @staticmethod
+    def validate_user_credentials(username, password_hash):
+        query = """
+        SELECT user_id, username, role, religion, explore_mode
+        FROM users
+        WHERE username = %s AND password_hash = %s
         """
-        Return sites filtered by religion. If religion is None, returns all sites.
-        Ordered by name.
+        return DataManager._execute_query(query, (username, password_hash), fetch_one=True)
+
+    @staticmethod
+    def update_user_address(user_id, new_address):
+        """Update only the user's address"""
+        query = "UPDATE users SET address = %s WHERE user_id = %s"
+        result = DataManager._execute_update(query, (new_address, user_id))
+        if result['success'] and result['affected_rows'] == 0:
+            return {"success": False, "error": "User not found"}
+        return result
+
+    @staticmethod
+    def register_user(username, email, password_hash):
+        query = """
+        INSERT INTO users (username, email, password_hash, role)
+        VALUES (%s, %s, %s, 'user')
         """
-        if religion is None:
-            query = "SELECT * FROM sites ORDER BY name"
-            return DataManager._execute_query(query)
-        else:
-            query = "SELECT * FROM sites WHERE religion = %s ORDER BY name"
-            return DataManager._execute_query(query, (religion,))
+        try:
+            result = DataManager._execute_update(query, (username, email, password_hash))
+            if result['success']:
+                return {"success": True, "user_id": result.get('lastrowid')}
+            return result
+        except IntegrityError:
+            return {"success": False, "error": "Username or Email already in use"}
+
+    @staticmethod
+    def update_password(email, new_password_hash):
+        query = "UPDATE users SET password_hash = %s WHERE email = %s"
+        result = DataManager._execute_update(query, (new_password_hash, email))
+        if result['success'] and result['affected_rows'] == 0:
+            return {"success": False, "error": "Email not found"}
+        return result
+
+    @staticmethod
+    def update_user_details(user_id, address=None, dob_str=None, religion=None):
+        """Update user details - any parameter can be None to skip updating that field"""
+        updates = []
+        params = []
+
+        if address is not None:
+            updates.append("address = %s")
+            params.append(address)
+        if dob_str is not None:
+            updates.append("dob = %s")
+            params.append(dob_str)
+        if religion is not None:
+            updates.append("religion = %s")
+            params.append(religion)
+
+        if not updates:  # Nothing to update
+            return {"success": False, "error": "No fields to update"}
+
+        params.append(user_id)  # Always add user_id at the end for WHERE clause
+        query = f"UPDATE users SET {', '.join(updates)} WHERE user_id = %s"
+
+        result = DataManager._execute_update(query, params)
+        if result['success'] and result['affected_rows'] == 0:
+            return {"success": False, "error": "User not found"}
+        return result
 
     @staticmethod
     def update_user_religion(user_id, new_religion):
+        query = "UPDATE users SET religion = %s WHERE user_id = %s"
+        result = DataManager._execute_update(query, (new_religion, user_id))
+        if result['success'] and result['affected_rows'] == 0:
+            return {"success": False, "error": "User not found"}
+        return result
+
+    @staticmethod
+    def toggle_explore_mode(user_id, explore_mode):
+        query = "UPDATE users SET explore_mode = %s WHERE user_id = %s"
+        result = DataManager._execute_update(query, (explore_mode, user_id))
+        if result['success'] and result['affected_rows'] == 0:
+            return {"success": False, "error": "User not found"}
+        return result
+
+    # Feedback and ratings
+    @staticmethod
+    def submit_rating(user_id, rating):
+        query = """
+        INSERT INTO ratings (user_id, rating, created_at)
+        VALUES (%s, %s, NOW())
         """
-        Update the religion for the user with the given user_id.
-        Returns {"success": True} if exactly one row was updated,
-                or {"success": False, "error": <message>} otherwise.
+        return DataManager._execute_update(query, (user_id, rating))
+
+    @staticmethod
+    def submit_feedback(user_id, feedback_text):
+        query = """
+        INSERT INTO feedback (user_id, feedback_text, created_at)
+        VALUES (%s, %s, NOW())
         """
-        conn = None
-        cursor = None
-        try:
-            conn = get_connection()
-            cursor = conn.cursor()
-            update_query = "UPDATE users SET religion = %s WHERE user_id = %s"
-            cursor.execute(update_query, (new_religion, user_id))
-            conn.commit()
-            if cursor.rowcount == 0:
-                return {"success": False, "error": "User not found."}
-            return {"success": True}
-        except Error as e:
-            return {"success": False, "error": str(e)}
-        finally:
-            if cursor:
-                cursor.close()
-            if conn and conn.is_connected():
-                conn.close()
-# Expose module‐level functions
-fetch_all_sites          = DataManager.fetch_all_sites
-fetch_site_by_id         = DataManager.fetch_site_by_id
-fetch_events_by_site     = DataManager.fetch_events_by_site
-fetch_images_by_site     = DataManager.fetch_images_by_site
-fetch_reviews_by_site    = DataManager.fetch_reviews_by_site
-fetch_user               = DataManager.fetch_user
+        return DataManager._execute_update(query, (user_id, feedback_text))
+
+
+# Module-level exports
+fetch_all_sites = DataManager.fetch_all_sites
+fetch_site_by_id = DataManager.fetch_site_by_id
+fetch_events_by_site = DataManager.fetch_events_by_site
+fetch_images_by_site = DataManager.fetch_images_by_site
+fetch_reviews_by_site = DataManager.fetch_reviews_by_site
+fetch_user = DataManager.fetch_user
 validate_user_credentials = DataManager.validate_user_credentials
-register_user            = DataManager.register_user
-get_user_by_email        = DataManager.get_user_by_email
-update_password          = DataManager.update_password
-update_user_details      = DataManager.update_user_details
+register_user = DataManager.register_user
+get_user_by_email = DataManager.get_user_by_email
+update_password = DataManager.update_password
+update_user_details = DataManager.update_user_details
 get_user_by_id = DataManager.get_user_by_id
 fetch_sites_by_religion = DataManager.fetch_sites_by_religion
 update_user_religion = DataManager.update_user_religion
+submit_rating = DataManager.submit_rating
+submit_feedback = DataManager.submit_feedback
+toggle_explore_mode = DataManager.toggle_explore_mode
+update_user_address = DataManager.update_user_address

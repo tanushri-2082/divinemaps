@@ -1,16 +1,17 @@
 # app/db.py
 
 import mysql.connector
+from mysql.connector import Error
 
 def get_connection():
-    """
-    Create and return a new MySQL‐connector connection.
-    Make sure MySQL is running locally and that the credentials
-    match your `trialdivinemaps` database setup.
-    """
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",               # MySQL username
-        password="root",           # MySQL password
-        database="trialdivinemaps" # database name
-    )
+    try:
+        return mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="root",
+            database="trialdivinemaps",
+            autocommit=True
+        )
+    except Error as e:
+        print(f"Error connecting to MySQL: {e}")
+        raise
