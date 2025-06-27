@@ -12,8 +12,8 @@
     MDBoxLayout:
         orientation: 'vertical'
         size_hint: None, None
-        size: dp(150), dp(150)
-        pos_hint: {"center_x": 0.5, "center_y":0.5}
+        size: dp(170), dp(170)
+        pos_hint: {"center_x": 0.5, "center_y":0.7}
         padding: dp(10)
 
         Image:
@@ -57,7 +57,7 @@
                 MDRaisedButton:
                     on_release: root.manager.current = 'map'
                     size_hint: None, None
-                    size: dp(200), dp(60)
+                    size: dp(250), dp(80)
                     MDBoxLayout:
                         orientation: "horizontal"
                         spacing: dp(10)
@@ -66,12 +66,13 @@
                             icon: "map-marker"
                         MDLabel:
                             text: "Explore Sacred Sites"
+                            font_size: '18sp'
                             halign: "center"
 
                 MDRaisedButton:
                     on_release: root.go_to_favorites()
                     size_hint: None, None
-                    size: dp(200), dp(60)
+                    size: dp(250), dp(80)
                     MDBoxLayout:
                         orientation: "horizontal"
                         spacing: dp(10)
@@ -80,12 +81,13 @@
                             icon: "heart"
                         MDLabel:
                             text: "My Favorites"
+                            font_size: '18sp'
                             halign: "center"
 
                 MDRaisedButton:
                     on_release: root.go_to_planner()
                     size_hint: None, None
-                    size: dp(200), dp(60)
+                    size: dp(250), dp(80)
                     MDBoxLayout:
                         orientation: "horizontal"
                         spacing: dp(10)
@@ -94,12 +96,13 @@
                             icon: "calendar"
                         MDLabel:
                             text: "Pilgrimage Planner"
+                            font_size: '18sp'
                             halign: "center"
 
                 MDRaisedButton:
                     on_release: root.go_to_log()
                     size_hint: None, None
-                    size: dp(200), dp(60)
+                    size: dp(250), dp(80)
                     MDBoxLayout:
                         orientation: "horizontal"
                         spacing: dp(10)
@@ -108,6 +111,7 @@
                             icon: "file-document-outline"
                         MDLabel:
                             text: "Activity Log"
+                            font_size: '18sp'
                             halign: "center"
 
             MDRaisedButton:

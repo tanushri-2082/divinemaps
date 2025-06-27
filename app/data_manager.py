@@ -123,12 +123,14 @@ class DataManager:
 
     @staticmethod
     def update_user_address(user_id, new_address):
-        """Update only the user's address"""
         query = "UPDATE users SET address = %s WHERE user_id = %s"
         result = DataManager._execute_update(query, (new_address, user_id))
-        if result['success'] and result['affected_rows'] == 0:
-            return {"success": False, "error": "User not found"}
-        return result
+
+
+        if not result['success']:
+            return result
+
+        return {"success": True}
 
     @staticmethod
     def register_user(username, email, password_hash):
