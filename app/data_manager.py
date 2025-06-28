@@ -1,8 +1,6 @@
 # app/data_manager.py
-
 from app.db import get_connection
 from mysql.connector import Error, IntegrityError
-
 
 class DataManager:
     @staticmethod
@@ -57,7 +55,6 @@ class DataManager:
     # Site-related operations
     @staticmethod
     def fetch_all_sites():
-        """Return all religious sites ordered by name"""
         query = "SELECT * FROM sites ORDER BY name"
         return DataManager._execute_query(query)
 
@@ -101,7 +98,6 @@ class DataManager:
         query = "SELECT * FROM sites WHERE religion = %s ORDER BY name"
         return DataManager._execute_query(query, (religion,))
 
-    # User-related operations
     @staticmethod
     def get_user_by_id(user_id):
         query = "SELECT * FROM users WHERE user_id = %s"
@@ -161,7 +157,6 @@ class DataManager:
 
     @staticmethod
     def update_user_details(user_id, address=None, dob_str=None, religion=None):
-        """Update user details - any parameter can be None to skip updating that field"""
         updates = []
         params = []
 

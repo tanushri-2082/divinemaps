@@ -68,19 +68,16 @@ class LoginScreen(Screen):
 
     def update_translations(self):
         app = App.get_running_app()
-        # Retrieve current locale (fallback to 'en')
         try:
             lang = app.locale
         except Exception:
             lang = 'en'
-        # Fonts
         hi_font = resource_find('data/fonts/NotoSansDevanagari-Regular.ttf')
         kn_font = resource_find('data/fonts/NotoSansKannada-Regular.ttf')
         en_font = resource_find('data/fonts/Roboto-Regular.ttf')
         label_font = {'hi': hi_font, 'kn': kn_font}.get(lang, en_font)
         input_font = {'hi': hi_font, 'kn': kn_font}.get(lang, en_font)
 
-        # Title label
         if 'title_label' in self.ids:
             self.ids.title_label.text = app.get_translations('Divine Maps')
             self.ids.title_label.font_name = label_font
@@ -88,7 +85,6 @@ class LoginScreen(Screen):
             self.ids.tagline_label.text = app.get_translations('Spiritual Exploration Made Simple')
             self.ids.tagline_label.font_name = label_font
 
-        # Username/password hints
         if 'username_input' in self.ids:
             self.ids.username_input.hint_text = app.get_translations('Enter username')
             self.ids.username_input.font_name = input_font
@@ -96,12 +92,10 @@ class LoginScreen(Screen):
             self.ids.password_input.hint_text = app.get_translations('Enter password')
             self.ids.password_input.font_name = input_font
 
-        # Login button
         if 'login_button' in self.ids:
             self.ids.login_button.text = app.get_translations('Login')
             self.ids.login_button.font_name = label_font
 
-        # Links: Sign Up / Forgot / Guest
         if 'signup_label' in self.ids:
             self.ids.signup_label.text = f"[ref=signup]{app.get_translations('Sign Up')}[/ref]"
             self.ids.signup_label.font_name = label_font
@@ -112,12 +106,10 @@ class LoginScreen(Screen):
             self.ids.guest_label.text = f"[ref=guest]{app.get_translations('Continue as Guest')}[/ref]"
             self.ids.guest_label.font_name = label_font
 
-        # Quote
         if 'quote_label' in self.ids:
             self.ids.quote_label.text = app.get_translations('Quote')
             self.ids.quote_label.font_name = label_font
 
-        # Version & terms
         if 'version_label' in self.ids:
             self.ids.version_label.text = app.get_translations('Version v1.0.0')
             self.ids.version_label.font_name = label_font
@@ -127,7 +119,6 @@ class LoginScreen(Screen):
 
     def do_login(self, username, password):
         app = App.get_running_app()
-        # Validate credentials
         if not username or not password:
             Popup(
                 title=app.get_translations('Error'),
@@ -139,9 +130,7 @@ class LoginScreen(Screen):
         pw_hash = hashlib.sha256(password.encode()).hexdigest()
         user = validate_user_credentials(username, pw_hash)
         if user:
-            # Login successful; store current_user_id
             app.current_user_id = user['user_id']
-            # Navigate onward, e.g. main map
             self.manager.current = 'home'
         else:
             Popup(
@@ -154,7 +143,6 @@ class LoginScreen(Screen):
         self.manager.current = 'signup'
 
     def go_to_forgot(self):
-        # Reverted: go to single forgot screen
         self.manager.current = 'forgot'
 
     def continue_as_guest(self):
@@ -179,7 +167,6 @@ class PrivacyScreen(Screen):
 class SignUpScreen(Screen):
     def on_pre_enter(self):
         app = App.get_running_app()
-        # Translations for signup screen
         if 'signup_title' in self.ids:
             self.ids.signup_title.text = app.get_translations('Sign Up')
         if 'username_input' in self.ids:
@@ -229,7 +216,6 @@ class SignUpScreen(Screen):
         res = register_user(username, email, pw_hash)
         if res.get('success'):
             app.current_user_id = res['user_id']
-            # Navigate to details screen
             self.manager.current = 'details'
         else:
             Popup(
@@ -249,7 +235,6 @@ class ForgotPasswordScreen(Screen):
         new_password = self.ids.new_password_input.text
         confirm_new_password = self.ids.confirm_new_password_input.text
 
-        # Basic validations
         if not (email and new_password and confirm_new_password):
             Popup(
                 title=app.get_translations('Error'),
@@ -301,14 +286,12 @@ class ForgotPasswordScreen(Screen):
 class DetailsScreen(Screen):
     def on_pre_enter(self):
         app = App.get_running_app()
-        # Clear fields and set hints
         if 'address_input' in self.ids:
             self.ids.address_input.text = ''
             self.ids.address_input.hint_text = app.get_translations('Enter address')
         if 'dob_input' in self.ids:
             self.ids.dob_input.text = ''
             self.ids.dob_input.hint_text = app.get_translations('YYYY-MM-DD')
-            # Allow manual entry:
             self.ids.dob_input.readonly = False
         if 'religion_spinner' in self.ids:
             self.ids.religion_spinner.text = app.get_translations('Select Religion')
@@ -316,14 +299,12 @@ class DetailsScreen(Screen):
         Clock.schedule_once(lambda dt: self._bind_form_fields())
 
     def _bind_form_fields(self):
-        # Bind text change events
         if 'address_input' in self.ids:
             self.ids.address_input.bind(text=self.check_form)
         if 'dob_input' in self.ids:
             self.ids.dob_input.bind(text=self.check_form)
         if 'religion_spinner' in self.ids:
             self.ids.religion_spinner.bind(text=self.check_form)
-        # Initially disable Continue
         self.check_form()
 
     def open_date_picker(self):
@@ -372,7 +353,7 @@ class DetailsScreen(Screen):
         dob = self.ids.dob_input.text.strip()
         religion = self.ids.religion_spinner.text.strip()
         select_religion_text = app.get_translations('Select Religion')
-        # Re-validate
+
         if not (address and dob and religion and religion != select_religion_text):
             Popup(
                 title=app.get_translations('Error'),
@@ -405,7 +386,7 @@ class DetailsScreen(Screen):
                 content=Label(text=app.get_translations('Details saved!')),
                 size_hint=(0.6, 0.4)
             ).open()
-            # Navigate onward
+
             self.manager.current = 'home'
         else:
             Popup(
@@ -470,7 +451,6 @@ class DetailsScreen(Screen):
                 content=Label(text=app.get_translations('Could not save details: ') + res.get('error','')),
                 size_hint=(0.6, 0.4)
             ).open()
-
 
 class GuestScreen(Screen):
     def explore_as_guest(self):
@@ -809,7 +789,6 @@ class SettingsScreen(Screen):
     explore_mode = BooleanProperty(False)
 
     def on_pre_enter(self):
-        # Load current settings
         app = App.get_running_app()
         if hasattr(app, 'current_user_id') and app.current_user_id:
             user = get_user_by_id(app.current_user_id)
@@ -822,7 +801,6 @@ class SettingsScreen(Screen):
         self.explore_mode = state == 'down'
         self.ids.explore_mode_toggle.text = f'Explore Mode: {"ON" if self.explore_mode else "OFF"}'
 
-        # Save to database
         app = App.get_running_app()
         if hasattr(app, 'current_user_id') and app.current_user_id:
             result = toggle_explore_mode(app.current_user_id, self.explore_mode)
@@ -833,8 +811,6 @@ class SettingsScreen(Screen):
 
     def show_address_dialog(self):
         app = App.get_running_app()
-
-        # Get current address if available
         current_address = ""
         if hasattr(app, 'current_user_id') and app.current_user_id:
             user = get_user_by_id(app.current_user_id)
@@ -844,7 +820,7 @@ class SettingsScreen(Screen):
         content = BoxLayout(orientation='vertical', spacing=10, padding=10)
         address_input = TextInput(
             hint_text='Enter your full address',
-            text=current_address or '',  # ✅ this avoids the crash
+            text=current_address or '',
             multiline=True,
             size_hint_y=0.7
         )
@@ -1066,7 +1042,6 @@ class DivineMapsApp(MDApp):
         sm.add_widget(SettingsScreen(name='settings'))
         sm.add_widget(ReligionScreen(name='religion'))
         return sm
-
 
 if __name__ == '__main__':
     DivineMapsApp().run()
