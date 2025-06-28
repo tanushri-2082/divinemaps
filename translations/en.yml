@@ -29,12 +29,69 @@ Terms and Conditions: "Terms and Conditions"
 Privacy Policy: "Privacy Policy"
 terms_content: |
   1. Acceptance of Terms:
-  By using Divine Maps, you agree to be bound by these Terms and Conditions...
-  [More detailed terms content here...]
+  By using DivineMaps, you agree to be bound by these Terms and Conditions. If you do not agree with any part of the terms, you must not use the app.
+
+  2. Description of Service:
+  DivineMaps is a discovery platform that helps users find and learn about religious places, including details like significance, architecture, and events.
+
+  3. User Responsibilities:
+  - You must be at least 13 years old.
+  - Do not post offensive, illegal, or misleading content.
+  - Keep your login credentials secure.
+
+  4. Intellectual Property:
+  All content in DivineMaps is protected and belongs to the platform or its licensors. Unauthorized copying or reuse is prohibited.
+
+  5. Account and Security:
+  You are responsible for all activity under your account. If you detect suspicious activity, notify us immediately.
+
+  6. Limitations of Use:
+  You agree not to exploit, reverse-engineer, or tamper with the app's functionality or infrastructure.
+
+  7. Termination:
+  We may suspend or terminate access to your account if you breach these terms or act inappropriately on the platform.
+
+  8. Disclaimers:
+  DivineMaps is provided “as is.” While we strive to provide accurate information, we do not guarantee it.
+
+  9. Limitation of Liability:
+  We are not responsible for damages or losses resulting from your use of the app.
+
+  10. Changes to Terms:
+  We may revise these terms periodically. Continued use of DivineMaps implies acceptance of the updated terms.
+
+  11. Contact Us:
+  For any queries or support, please reach out to: support@divinemaps.app
 privacy_content: |
-  1. Information We Collect
-  We collect personal information when you register...
-  [More detailed privacy content here...]
+  1. Information We Collect:
+  We collect personal data such as your name, email, address, date of birth, religion (optional), and any feedback or content you submit.
+
+  2. How We Use Your Information:
+  We use this information to personalize your experience, improve the app, send important updates, and respond to support requests.
+
+  3. Sharing of Data:
+  We do not sell your data. Data may be shared with trusted service providers or authorities only when legally required.
+
+  4. Location Services:
+  If enabled, your location helps us show nearby religious places. You can disable this at any time in your settings.
+
+  5. Cookies and Analytics:
+  We may use cookies or analytics tools to better understand user behavior and improve app performance.
+
+  6. Data Security:
+  We implement security measures to protect your data, though no system can be completely secure.
+
+  7. User Rights:
+  You may request to access, modify, or delete your personal data at any time.
+
+  8. Children’s Privacy:
+  We do not knowingly collect personal data from users under 13 years old.
+
+  9. Changes to Privacy Policy:
+  We may update this policy. Continued use of the app after changes implies acceptance.
+
+  10. Contact:
+  For privacy concerns, contact: privacy@divinemaps.app
 
 # Login screen
 Username: "Username"
