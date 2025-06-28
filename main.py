@@ -13,7 +13,9 @@ from kivy.resources import resource_find
 from kivy.properties import BooleanProperty
 from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
+from kivymd.uix.label import MDIcon
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.scrollview import ScrollView
 from kivy.uix.button import Button
 from mysql.connector import Error
 from kivymd.app import MDApp
@@ -326,31 +328,23 @@ class DetailsScreen(Screen):
 
     def open_date_picker(self):
         date_dialog = MDDatePicker()
-        # Optionally, set year range:
-        # date_dialog.min_year = 1900
-        # date_dialog.max_year = datetime.now().year
         date_dialog.bind(on_save=self.on_save, on_cancel=self.on_cancel)
         date_dialog.open()
 
     def on_save(self, instance, value, date_range):
-        # `value` is a datetime.date object
-        # Format to YYYY-MM-DD:
         self.ids.dob_input.text = value.strftime('%Y-%m-%d')
 
     def on_cancel(self, instance, value):
         pass
 
     def check_form(self, *args):
-        """Enable Continue button only if all fields filled & valid."""
         app = MDApp.get_running_app()
         address = self.ids.address_input.text.strip() if 'address_input' in self.ids else ''
         dob = self.ids.dob_input.text.strip() if 'dob_input' in self.ids else ''
         religion = self.ids.religion_spinner.text.strip() if 'religion_spinner' in self.ids else ''
         select_religion_text = app.get_translations('Select Religion')
-        # Check non-empty, religion not default, and dob format roughly YYYY-MM-DD
         valid = False
         if address and dob and religion and religion != select_religion_text:
-            # Quick format check: 4-2-2 digits
             try:
                 datetime.strptime(dob, '%Y-%m-%d')
                 valid = True
@@ -360,16 +354,12 @@ class DetailsScreen(Screen):
         if btn:
             btn.disabled = not valid
             if valid:
-                # Set orange background (RGBA). If using MDApp with theme_cls.primary_color or custom:
-                # If your orange is e.g. [0.9,0.5,0.2,1], set:
                 try:
                     btn.md_bg_color = [0.9, 0.5, 0.2, 1]
                 except:
-                    # fallback for plain Button: background_color
                     btn.background_normal = ''
                     btn.background_color = [0.9, 0.5, 0.2, 1]
             else:
-                # gray out
                 try:
                     btn.md_bg_color = [0.5, 0.5, 0.5, 1]
                 except:
@@ -390,7 +380,6 @@ class DetailsScreen(Screen):
                 size_hint=(0.6, 0.4)
             ).open()
             return
-        # Validate date format
         try:
             datetime.strptime(dob, '%Y-%m-%d')
         except ValueError:
@@ -400,7 +389,6 @@ class DetailsScreen(Screen):
                 size_hint=(0.6, 0.4)
             ).open()
             return
-        # Ensure user ID present
         if not hasattr(app, 'current_user_id') or app.current_user_id is None:
             Popup(
                 title=app.get_translations('Error'),
@@ -432,7 +420,6 @@ class DetailsScreen(Screen):
         date_dialog.open()
 
     def on_save(self, instance, value, date_range):
-        # value is datetime.date
         self.ids.dob_input.text = value.strftime('%Y-%m-%d')
 
     def on_cancel(self, instance, value):
@@ -521,6 +508,78 @@ class HomeScreen(Screen):
     def go_to_log(self, *args):
         # Replace with actual screen or popup
         print("Log clicked")
+
+    def show_user_profile(self):
+        app = App.get_running_app()
+
+        if not hasattr(app, 'current_user_id') or not app.current_user_id:
+            self.show_popup("Error", "User not logged in")
+            return
+
+        user = get_user_by_id(app.current_user_id)
+        if not user:
+            self.show_popup("Error", "Could not fetch user info")
+            return
+
+        scroll = ScrollView(size_hint=(1, 1))
+        inner = BoxLayout(orientation='vertical', size_hint_y=None, padding=[30, 20, 30, 20], spacing=20)
+        inner.bind(minimum_height=inner.setter('height'))
+
+        details = [
+            f"Username: {user.get('username')}",
+            f"Email: {user.get('email')}",
+            f"Address: {user.get('address') or 'N/A'}",
+            f"DOB: {user.get('dob') or 'N/A'}",
+            f"Religion: {user.get('religion') or 'N/A'}",
+            f"Role: {user.get('role') or 'User'}",
+        ]
+
+        for line in details:
+            lbl = Label(
+                text=line,
+                size_hint_y=None,
+                height=40,
+                halign='left',
+                valign='middle',
+                font_size='18sp'
+            )
+            lbl.bind(size=lambda label, _: setattr(label, 'text_size', (label.width, None)))
+            inner.add_widget(lbl)
+
+        scroll.add_widget(inner)
+
+        avatar = MDIcon(
+            icon="account-circle",
+            halign="center",
+            theme_text_color="Custom",
+            text_color=(1, 1, 1, 1),
+            font_size="96sp",
+            size_hint=(1, None),
+            height=120
+        )
+
+        close_btn = Button(
+            text="Close",
+            size_hint=(None, None),
+            size=(200, 50),
+            pos_hint={'center_x': 0.5},
+            font_size='18sp'
+        )
+
+        main = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        main.add_widget(avatar)
+        main.add_widget(scroll)
+        main.add_widget(close_btn)
+
+        popup = Popup(
+            title="User Profile",
+            content=main,
+            size_hint=(0.7, 0.7),
+            auto_dismiss=False
+        )
+
+        close_btn.bind(on_release=popup.dismiss)
+        popup.open()
 
 
 class ReligionScreen(Screen):

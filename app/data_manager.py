@@ -38,7 +38,12 @@ class DataManager:
             cursor = conn.cursor()
             cursor.execute(query, params or ())
             conn.commit()
-            return {"success": True, "affected_rows": cursor.rowcount}
+            return {
+                "success": True,
+                "affected_rows": cursor.rowcount,
+                "lastrowid": cursor.lastrowid  # ✅ This is needed
+          }
+
         except IntegrityError as e:
             return {"success": False, "error": str(e)}
         except Error as e:

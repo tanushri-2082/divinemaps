@@ -36,8 +36,9 @@
         MDTopAppBar:
             title: "Divine Maps"
             elevation: 10
-            left_action_items: [['menu', lambda x: app.root.toggle_nav_drawer()]]
+            left_action_items: [['menu', lambda x: app.root.get_screen('home').show_user_profile()]]
             right_action_items: [['cog', root.go_to_settings]]
+
 
         MDBoxLayout:
             orientation: 'vertical'
