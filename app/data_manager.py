@@ -206,7 +206,7 @@ class DataManager:
     @staticmethod
     def submit_rating(user_id, rating):
         query = """
-        INSERT INTO ratings (user_id, rating, created_at)
+        INSERT INTO ratings (user_id, rating, submitted_at)
         VALUES (%s, %s, NOW())
         """
         return DataManager._execute_update(query, (user_id, rating))
@@ -214,7 +214,7 @@ class DataManager:
     @staticmethod
     def submit_feedback(user_id, feedback_text):
         query = """
-        INSERT INTO feedback (user_id, feedback_text, created_at)
+        INSERT INTO feedback (user_id, feedback_text, submitted_at)
         VALUES (%s, %s, NOW())
         """
         return DataManager._execute_update(query, (user_id, feedback_text))
