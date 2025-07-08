@@ -1,7 +1,10 @@
+# ui/details.kv
+
+#:import MDIconButton kivymd.uix.button.MDIconButton
+#:import MDRaisedButton kivymd.uix.button.MDRaisedButton
 #:import dp kivy.metrics.dp
 
 <DetailsScreen>:
-    name: 'details'
     # Wrap in AnchorLayout to center the BoxLayout horizontally:
     AnchorLayout:
         anchor_x: 'center'
@@ -48,7 +51,6 @@
                     id: dob_input
                     hint_text: app.get_translations('YYYY-MM-DD')
                     multiline: False
-                    # we allow manual entry, so do NOT set readonly: True
                     size_hint_x: 1
 
                 MDIconButton:
@@ -60,9 +62,8 @@
 
             Spinner:
                 id: religion_spinner
-                text: app.get_translations('Select Religion')
-                # single-line list to avoid indentation issues:
-                values: [app.get_translations('Sikhism'), app.get_translations('Islam'), app.get_translations('Christianity'), app.get_translations('Jainism'), app.get_translations('Hinduism'), app.get_translations('Buddhism'), app.get_translations('Atheist'), app.get_translations('No Preference')]
+                text: ''
+                values: []
                 size_hint_y: None
                 height: dp(44)
 
@@ -74,3 +75,17 @@
                 pos_hint: {'center_x': 0.5}
                 disabled: True
                 on_release: root.submit_form()
+
+
+    # Back button at top left
+    MDRaisedButton:
+        text: app.get_translations('Back')
+        size_hint: None, None
+        size: dp(80), dp(30)
+        pos_hint: {'x':0.02, 'top':0.98}
+        background_normal: ''
+        background_color: [0.9, 0.5, 0.2, 1]
+        color: [1, 1, 1, 1]
+        font_size: '14sp'
+        radius: [10, 10, 10, 10]
+        on_release: root.go_back()

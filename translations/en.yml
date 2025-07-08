@@ -1,3 +1,5 @@
+# translations/en.yml
+
 Divine Maps: "Divine Maps"
 Spiritual Exploration Made Simple: "Spiritual Exploration Made Simple"
 Login: "Login"
@@ -12,7 +14,6 @@ Enter username: "Enter username"
 Enter email: "Enter email"
 Enter password: "Enter password"
 Re-enter password: "Re-enter password"
-Back: "Back"
 
 You can: "You can:"
 Browse all sacred sites: "Browse all sacred sites"
@@ -138,3 +139,12 @@ Invalid date format.: "Invalid date format."
 # Guest
 Guest Mode: "Guest Mode"
 Exploring in guest mode with limited features: "Exploring in guest mode with limited features"
+
+Security answer required: "Security answer required"
+Security answer incorrect: "Security answer incorrect"
+Security Question: "Security Question"
+Your answer: "Your answer"
+Back: "Back"
+
+# Help & Support: "Help & Support"
+"If you need assistance, please contact us at support@divinemaps.app or visit our FAQ page.": "If you need assistance, please contact us at support@divinemaps.app or visit our FAQ page."

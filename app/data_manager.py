@@ -1,4 +1,5 @@
 # app/data_manager.py
+
 from app.db import get_connection
 from mysql.connector import Error, IntegrityError
 
@@ -110,7 +111,7 @@ class DataManager:
 
     @staticmethod
     def get_user_by_email(email):
-        query = "SELECT user_id, username, email FROM users WHERE email = %s"
+        query = "SELECT user_id, username, email, security_question, security_answer FROM users WHERE email = %s"
         return DataManager._execute_query(query, (email,), fetch_one=True)
 
     @staticmethod
@@ -134,19 +135,21 @@ class DataManager:
         return {"success": True}
 
     @staticmethod
-    def register_user(username, email, password_hash):
+    def register_user(username, email, password_hash, security_question, security_answer):
         query = """
-        INSERT INTO users (username, email, password_hash, role)
-        VALUES (%s, %s, %s, 'user')
+        INSERT INTO users (username, email, password_hash,role, security_question, security_answer)
+        VALUES (%s, %s, %s, 'user', %s, %s)
         """
+
         try:
-            result = DataManager._execute_update(query, (username, email, password_hash))
+            result = DataManager._execute_update(query,(username, email, password_hash, security_question, security_answer))
+
             if result['success']:
                 return {"success": True, "user_id": result.get('lastrowid')}
             return result
         except IntegrityError:
             return {"success": False, "error": "Username or Email already in use"}
-
+        
     @staticmethod
     def update_password(email, new_password_hash):
         query = "UPDATE users SET password_hash = %s WHERE email = %s"
@@ -186,6 +189,18 @@ class DataManager:
         query = "UPDATE users SET religion = %s WHERE user_id = %s"
         result = DataManager._execute_update(query, (new_religion, user_id))
         if result['success'] and result['affected_rows'] == 0:
+            return {"success": False, "error": "User not found"}
+        return result
+
+    @staticmethod
+    def update_username(user_id, new_username):
+        """
+        Change the username for a given user_id.
+        Returns a dict: {"success": bool, "error": str (if any)}.
+        """
+        sql = "UPDATE users SET username = %s WHERE user_id = %s"
+        result = DataManager._execute_update(sql, (new_username, user_id))
+        if result.get("success") and result.get("affected_rows", 0) == 0:
             return {"success": False, "error": "User not found"}
         return result
 
@@ -234,3 +249,4 @@ submit_rating = DataManager.submit_rating
 submit_feedback = DataManager.submit_feedback
 toggle_explore_mode = DataManager.toggle_explore_mode
 update_user_address = DataManager.update_user_address
+update_username = DataManager.update_username

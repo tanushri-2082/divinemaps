@@ -1,3 +1,7 @@
+# ui/privacy.kv
+#:import MDRaisedButton kivymd.uix.button.MDRaisedButton
+#:import dp kivy.metrics.dp
+
 <PrivacyScreen>:
     name: 'privacy'
 
@@ -19,7 +23,7 @@
             pos: root.pos
 
         # Back Button
-        Button:
+        MDRaisedButton:
             text: app.get_translations('Back')
             size_hint: None, None
             size: dp(80), dp(30)
@@ -28,7 +32,7 @@
             background_color: [0.9, 0.5, 0.2, 1]
             color: [1, 1, 1, 1]
             font_size: '14sp'
-            radius: [dp(10),]
+            radius: [10, 10, 10, 10]
             on_release: root.go_back()
 
         # Content
@@ -63,3 +67,16 @@
                     text_size: self.width, None
                     halign: 'left'
                     valign: 'top'
+
+    # Back button at top left
+    Button:
+        text: app.get_translations('Back')
+        size_hint: None, None
+        size: dp(80), dp(30)
+        pos_hint: {'x':0.02, 'top':0.98}
+        background_normal: ''
+        background_color: [0.9, 0.5, 0.2, 1]
+        color: [1, 1, 1, 1]
+        font_size: '14sp'
+        radius: [10, 10, 10, 10]
+        on_release: root.go_back()

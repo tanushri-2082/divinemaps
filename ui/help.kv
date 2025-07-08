@@ -1,0 +1,46 @@
+#ui/help.kv
+
+ #:import dp kivy.metrics.dp
+#:import MDRaisedButton kivymd.uix.button.MDRaisedButton
+
+<HelpScreen>:
+    name: 'help'
+    canvas.before:
+        Color:
+            rgba: 1,1,1,1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    FloatLayout:
+
+        Label:
+            text: app.get_translations('Help & Support')
+            font_size: '48sp'
+            bold: True
+            halign: 'center'
+            valign: 'middle'
+            size_hint: None, None
+            size: self.texture_size
+            pos_hint: {'center_x':0.5,'top':0.9}
+
+        Label:
+            text: app.get_translations('If you need assistance, please contact us at support@divinemaps.app or visit our FAQ page.')
+            font_size: '18sp'
+            halign: 'center'
+            valign: 'top'
+            text_size: root.width * 0.8, None
+            size_hint_y: None
+            height: self.texture_size[1]
+            pos_hint: {'center_x':0.5,'center_y':0.5}
+
+        MDRaisedButton:
+            text: app.get_translations('Back')
+            size_hint: None, None
+            size: dp(80), dp(30)
+            pos_hint: {'x':0.02, 'top':0.98}
+            md_bg_color: [0.9,0.5,0.2,1]
+            text_color: [1,1,1,1]
+            radius: [10, 10, 10, 10]
+            on_release: root.go_back()
+

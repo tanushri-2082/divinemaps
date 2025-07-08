@@ -1,17 +1,13 @@
 # app/db.py
-
-import mysql.connector
-from mysql.connector import Error
+import os
+from mysql.connector import connect, Error
 
 def get_connection():
-    try:
-        return mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="root",
-            database="trialdivinemaps",
-            autocommit=True
-        )
-    except Error as e:
-        print(f"Error connecting to MySQL: {e}")
-        raise
+    return connect(
+        host     = 'localhost',
+        user     = 'root',
+        password = 'root',   # ← fill this in
+        database = 'divinemaps',
+        charset  = 'utf8mb4',
+        autocommit=False,
+    )

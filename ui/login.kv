@@ -1,3 +1,7 @@
+# ui/login.kv
+
+#:import MDRaisedButton kivymd.uix.button.MDRaisedButton
+#:import MDCard kivymd.uix.card.MDCard
 #:import dp kivy.metrics.dp
 
 <LoginScreen>:
@@ -79,7 +83,7 @@
                         size_hint: 1, None
                         height: dp(44)
 
-                    Button:
+                    MDRaisedButton:
                         id: login_button
                         text: app.get_translations('Login')
                         size_hint: 1, None
@@ -89,7 +93,8 @@
                         background_color: [0.9, 0.5, 0.2, 1]
                         color: [1, 1, 1, 1]
                         font_size: '18sp'
-                        radius: [dp(10)]
+                        radius: [10, 10, 10, 10]
+
 
         # 4) Links: Sign Up / Forgot Password / Continue as Guest
         BoxLayout:
@@ -138,18 +143,29 @@
             height: self.texture_size[1]
             pos_hint: {'center_x': .5, 'y': .10}
 
-        # 6) Language Selector
-        Spinner:
-            id: lang_selector
-            text: app.locale
-            values: ['en', 'hi', 'kn']
-            background_normal: ''
-            background_color: [0.9, 0.5, 0.2, 1]
-            color: [1, 1, 1, 1]
+        # 6) Language Selector (top‑right)
+        MDCard:
             size_hint: None, None
             size: dp(80), dp(30)
             pos_hint: {'right': .98, 'top': .98}
-            on_text: app.set_locale(self.text)
+            md_bg_color: [0.9, 0.5, 0.2, 1]
+            radius: [15, 15, 15, 15]
+            elevation: 6
+            padding: 0
+
+            Spinner:
+                id: lang_selector
+                text: app.locale
+                values: ['en','hi','kn']
+                size_hint: 1, 1
+                background_normal: ''
+                background_color: [0, 0, 0, 0]
+                color: [1, 1, 1, 1]
+                on_text:
+                    app.set_locale(self.text)
+                    root.update_translations()
+
+
 
         # 7) Footer: Version & Legal
         BoxLayout:
@@ -175,3 +191,17 @@
                 on_ref_press:
                     if args[1] == 'terms': root.open_terms()
                     if args[1] == 'privacy': root.open_privacy()
+        # help button top‑left
+        MDRaisedButton:
+            text: app.get_translations('Help')
+            size_hint: None, None
+            size: dp(80), dp(30)
+            pos_hint: {'x': 0.02, 'top': 0.98}
+            md_bg_color: [0.9,0.5,0.2,1]
+            text_color: [1,1,1,1]
+            font_size: '14sp'
+            radius: [10, 10, 10, 10]
+            elevation: 4
+            on_release:
+                root.manager.transition.direction = 'left'
+                root.manager.current = 'help'

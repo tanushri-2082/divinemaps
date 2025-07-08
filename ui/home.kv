@@ -1,3 +1,7 @@
+# ui/home.kv
+#:import MDRaisedButton kivymd.uix.button.MDRaisedButton
+#:import dp kivy.metrics.dp
+
 <HomeScreen>:
     name: 'home'
     FloatLayout:
@@ -126,6 +130,7 @@
             MDRaisedButton:
                 text: "Logout"
                 icon: "logout"
+                elevation: 8
                 size_hint: None, None
                 size: dp(200), dp(50)
                 pos_hint: {'center_x': 0.5}

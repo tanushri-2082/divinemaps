@@ -1,3 +1,5 @@
+# translations/en.yml
+
 Divine Maps: "दिव्य मानचित्र"
 Spiritual Exploration Made Simple: "आध्यात्मिक अन्वेषण सरल बनाया"
 Login: "लॉग इन करें"
@@ -79,3 +81,8 @@ Invalid date format.: "अमान्य तिथि प्रारूप।"
 # Guest
 Guest Mode: "अतिथि मोड"
 Exploring in guest mode with limited features: "सीमित सुविधाओं के साथ अतिथि मोड में एक्सप्लोर करें"
+
+Security answer required: "सुरक्षा उत्तर आवश्यक है"
+Security answer incorrect: "सुरक्षा उत्तर गलत है"
+Security Question: "सुरक्षा प्रश्न"
+Your answer: "आपका जवाब"

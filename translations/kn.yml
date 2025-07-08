@@ -1,4 +1,4 @@
-# Kannada translations (kn.yml)
+# translations/en.yml
 
 Divine Maps: "ದಿವ್ಯ ನಕ್ಷೆಗಳು"
 Spiritual Exploration Made Simple: "ಆಧ್ಯಾತ್ಮಿಕ ಅನ್ವೇಷಣೆ ಸರಳಗೊಳಿಸಲಾಗಿದೆ"
@@ -82,3 +82,8 @@ Invalid date format.: "ಅಮಾನ್ಯ ದಿನಾಂಕ ರೂಪ"
 # Guest
 Guest Mode: "ಅತಿಥಿ ಮೋಡ್"
 Exploring in guest mode with limited features: "ಸೀಮಿತ ವೈಶಿಷ್ಟ್ಯಗಳೊಂದಿಗೆ ಅತಿಥಿ ಮೋಡ್‌ನಲ್ಲಿ ಅನ್ವೇಷಣೆ"
+
+Security answer required: "ಭದ್ರತಾ ಉತ್ತರ ಅಗತ್ಯವಿದೆ"
+Security answer incorrect: "ಭದ್ರತಾ ಉತ್ತರ ತಪ್ಪಾಗಿದೆ"
+Security Question: "ಭದ್ರತಾ ಪ್ರಶ್ನೆ"
+Your answer: "ನಿಮ್ಮ ಉತ್ತರ"

@@ -1,20 +1,19 @@
+# ui/signup.kv
+#:import MDRaisedButton kivymd.uix.button.MDRaisedButton
 #:import dp kivy.metrics.dp
 
 <SignUpScreen>:
     name: 'signup'
 
-
     canvas.before:
-        # 1) White background
         Color:
             rgba: 1, 1, 1, 1
         Rectangle:
             pos: self.pos
             size: self.size
 
-
     FloatLayout:
-        # 1) Background Image (faded temple silhouette)
+        # Background Image
         Image:
             source: 'data/bg.jpg'
             allow_stretch: True
@@ -23,9 +22,9 @@
             size: root.size
             pos: root.pos
 
-    ## ─── “← Back” BUTTON AT TOP-LEFT ─────────────────────────────────────
-    Button:
-        text: "Back"
+    ## ─── Back Button ──────────────────────────────────────────
+    MDRaisedButton:
+        text: app.get_translations('Back')
         size_hint: None, None
         size: dp(80), dp(30)
         pos_hint: {'x':0.02, 'top':0.98}
@@ -33,89 +32,115 @@
         background_color: [0.9, 0.5, 0.2, 1]
         color: [1, 1, 1, 1]
         font_size: '14sp'
-        radius: [dp(10),]
+        radius: [10, 10, 10, 10]
         on_release: root.go_back()
 
-    ## ─── FORM CONTENT BOX LAYOUT ─────────────────────────────────────────
-    BoxLayout:
-        orientation: 'vertical'
-        size_hint: 0.4, None
-        height: dp(350)
-        # Shift down a bit so it doesn’t overlap the Back button:
-        pos_hint: {'center_x': .5, 'center_y': .5}
-        spacing: dp(12)
-        padding: [dp(20), dp(20)]
+    ## ─── Main Content ────────────────────────────────────────
+    ScrollView:
+        size_hint: 0.9, 0.9
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
-        # ─── Title “SIGN UP” ───────────────────────────────────────
-        Label:
-            text: "Sign Up"
-            font_size: '60sp'
-            bold: True
-            color:[0.2, 0.2, 0.2, 1]
+        BoxLayout:
+            orientation: 'vertical'
             size_hint_y: None
-            height: self.texture_size[1]
-            halign: 'center'
-            valign: 'middle'
+            height: self.minimum_height
+            padding: dp(20)
+            spacing: dp(15)
 
-        # ─── Username ────────────────────────────────────────────
-        TextInput:
-            id: username_input
-            hint_text: "Username"
-            size_hint_y: None
-            height: dp(40)
-            multiline: False
-            padding: [dp(10), dp(10)]
-            background_normal: ''
-            background_color: [1, 1, 1, 1]
-            foreground_color: [0, 0, 0, 1]
+            # Title
+            Label:
+                text: app.get_translations('Sign Up')
+                font_size: '60sp'
+                bold: True
+                halign: 'center'
+                size_hint_y: None
+                height: self.texture_size[1]
+                color: [0.2, 0.2, 0.2, 1]
 
-        # ─── Email ───────────────────────────────────────────────
-        TextInput:
-            id: email_input
-            hint_text: "Email"
-            size_hint_y: None
-            height: dp(40)
-            multiline: False
-            input_type: 'text'
-            padding: [dp(10), dp(10)]
-            background_normal: ''
-            background_color: [1, 1, 1, 1]
-            foreground_color: [0, 0, 0, 1]
+            # Username
+            TextInput:
+                id: username_input
+                hint_text: app.get_translations('Enter username')
+                size_hint_y: None
+                height: dp(50)
+                multiline: False
+                padding: [dp(10), 0]
+                font_size: '16sp'
 
-        # ─── Password ───────────────────────────────────────────
-        TextInput:
-            id: password_input
-            hint_text: "Password"
-            password: True
-            size_hint_y: None
-            height: dp(40)
-            multiline: False
-            padding: [dp(10), dp(10)]
-            background_normal: ''
-            background_color: [1, 1, 1, 1]
-            foreground_color: [0, 0, 0, 1]
+            # Email
+            TextInput:
+                id: email_input
+                hint_text: app.get_translations('Enter email')
+                size_hint_y: None
+                height: dp(50)
+                multiline: False
+                input_type: 'mail'
+                keyboard_suggestions: False
+                input_filter: app.email_filter
+                padding: [dp(10), 0]
+                font_size: '16sp'
 
-        # ─── Confirm Password ───────────────────────────────────
-        TextInput:
-            id: confirm_password_input
-            hint_text: "Confirm Password"
-            password: True
-            size_hint_y: None
-            height: dp(40)
-            multiline: False
-            padding: [dp(10), dp(10)]
-            background_normal: ''
-            background_color: [1, 1, 1, 1]
-            foreground_color: [0, 0, 0, 1]
+            # Password
+            TextInput:
+                id: password_input
+                hint_text: app.get_translations('Enter password')
+                password: True
+                size_hint_y: None
+                height: dp(50)
+                multiline: False
+                padding: [dp(10), 0]
+                font_size: '16sp'
 
-        # ─── SIGN UP Button ───────────────────────────
-        Button:
-            text: "SIGN UP"
-            size_hint_y: None
-            height: dp(50)
-            on_release: root.on_signup_button()
-            background_normal: ''
-            background_color: [0.9, 0.5, 0.2, 1]
-            color: [1, 1, 1, 1]
-            font_size: '18sp'
-            radius: [dp(10),]
+            # Confirm Password
+            TextInput:
+                id: confirm_password_input
+                hint_text: app.get_translations('Confirm password')
+                password: True
+                size_hint_y: None
+                height: dp(50)
+                multiline: False
+                padding: [dp(10), 0]
+                font_size: '16sp'
+
+            # Security Question
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                height: dp(50)
+                spacing: dp(10)
+
+                Label:
+                    text: app.get_translations('Security Question:')
+                    size_hint_x: 0.4
+                    font_size: '16sp'
+                    halign: 'right'
+                    valign: 'middle'
+
+                Spinner:
+                    id: security_question_spinner
+                    size_hint_x: 0.6
+                    text: ''
+                    values: []
+                    font_size: '16sp'
+
+            # Security Answer
+            TextInput:
+                id: security_answer_input
+                hint_text: app.get_translations('Your answer')
+                size_hint_y: None
+                height: dp(50)
+                multiline: False
+                padding: [dp(10), 0]
+                font_size: '16sp'
+
+            # Sign Up Button
+            MDRaisedButton:
+                text: app.get_translations('Sign Up')
+                size_hint_y: None
+                height: dp(60)
+                md_bg_color: [0.9, 0.5, 0.2, 1]
+                text_color: [1, 1, 1, 1]
+                font_size: '20sp'
+                bold: True
+                radius: [10, 10, 10, 10]
+                on_release: root.on_signup_button()

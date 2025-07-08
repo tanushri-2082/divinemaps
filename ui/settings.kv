@@ -1,202 +1,173 @@
-# settings.kv
+# ui/settings.kv
+#:import MDRaisedButton kivymd.uix.button.MDRaisedButton
+#:import dp kivy.metrics.dp
+
 <SettingsScreen>:
-    BoxLayout:
-        orientation: 'vertical'
-        padding: [20, 20]
-        spacing: 40
+    FloatLayout:
 
-        # Header with Back Button
+        # ── Main content area ────────────────────────────────────────
         BoxLayout:
-            size_hint_y: None
-            height: 50
-            spacing: 10
+            orientation: 'vertical'
+            size_hint_x: 1
+            size_hint_y: 1
+            padding: dp(20), dp(60), dp(20), dp(20)
+            spacing: dp(30)
+            pos_hint: {'x': 0, 'y': 0}
 
-            Button:
-                text: 'Back'
-                color: 1, 1, 1, 1  # Black text
-                background_normal: ''
-                background_color: [0.9, 0.5, 0.2, 1]
-                size_hint: (None, None)
-                size: (100, 50)
-                font_size: '16sp'
-                bold: True
-                on_release: root.manager.current = 'home'
-
+            # Title
             Label:
-                text: 'Settings'
+                text: app.get_translations('Settings')
                 font_size: '58sp'
                 bold: True
-                size_hint_x: 0.8
+                size_hint_y: None
+                height: self.texture_size[1]
                 halign: 'center'
                 color: 0, 0, 0, 1
 
-        ScrollView:
-            GridLayout:
-                cols: 1
-                size_hint_y: None
-                height: self.minimum_height
-                spacing: 30
-                padding: [10]
+            ScrollView:
+                do_scroll_x: False
 
-                Button:
-                    text: 'Change Username'
-                    color: 1, 1, 1, 1  # Black text
-                    background_normal: ''
-                    background_color: [0.9, 0.5, 0.2, 1]
+                GridLayout:
+                    cols: 1
                     size_hint_y: None
-                    height: 60
-                    font_size: '14sp'
-                    bold: True
-                    on_release: root.show_username_dialog()
+                    height: self.minimum_height
+                    spacing: dp(20)
+                    padding: dp(10)
 
-                Button:
-                    text: 'Change Password'
-                    color: 1, 1, 1, 1  # Black text
-                    background_normal: ''
-                    background_color: [0.9, 0.5, 0.2, 1]
-                    size_hint_y: None
-                    height: 60
-                    font_size: '14sp'
-                    bold: True
-                    on_release: root.show_password_dialog()
+                    MDRaisedButton:
+                        text: app.get_translations('Change Username')
+                        md_bg_color: 0.9, 0.5, 0.2, 1
+                        size_hint_x: None
+                        width: dp(630)
+                        pos_hint: {'center_x': .5}
+                        size_hint_y: None
+                        height: dp(50)
+                        on_release: root.show_username_dialog()
 
-                Button:
-                    text: 'Change Address'
-                    color: 1, 1, 1, 1  # Black text
-                    background_normal: ''
-                    background_color: [0.9, 0.5, 0.2, 1]
-                    size_hint_y: None
-                    height: 60
-                    font_size: '14sp'
-                    bold: True
-                    on_release: root.show_address_dialog()
+                    MDRaisedButton:
+                        text: app.get_translations('Change Password')
+                        md_bg_color: 0.9, 0.5, 0.2, 1
+                        size_hint_x: None
+                        width: dp(630)
+                        pos_hint: {'center_x': .5}
+                        size_hint_y: None
+                        height: dp(50)
+                        on_release: root.show_password_dialog()
 
-                Button:
-                    text: 'Change Religion'
-                    color: 1, 1, 1, 1  # Black text
-                    background_normal: ''
-                    background_color: [0.9, 0.5, 0.2, 1]
-                    size_hint_y: None
-                    height: 60
-                    font_size: '14sp'
-                    bold: True
-                    on_release: root.manager.current = 'religion'
+                    MDRaisedButton:
+                        text: app.get_translations('Change Address')
+                        md_bg_color: 0.9, 0.5, 0.2, 1
+                        size_hint_x: None
+                        width: dp(630)
+                        pos_hint: {'center_x': .5}
+                        size_hint_y: None
+                        height: dp(50)
+                        on_release: root.show_address_dialog()
 
-                ToggleButton:
-                    id: explore_mode_toggle
-                    text: 'Explore Mode: OFF'
-                    color: 1, 1, 1, 1  # Black text
-                    background_normal: ''
-                    background_color: [0.9, 0.5, 0.2, 1]
-                    size_hint_y: None
-                    height: 60
-                    font_size: '14sp'
-                    bold: True
-                    on_state: root.toggle_explore_mode(self.state)
+                    MDRaisedButton:
+                        text: app.get_translations('Change Religion')
+                        md_bg_color: 0.9, 0.5, 0.2, 1
+                        size_hint_x: None
+                        width: dp(630)
+                        pos_hint: {'center_x': .5}
+                        size_hint_y: None
+                        height: dp(50)
+                        on_release: root.manager.current = 'religion'
 
-                # App Settings
+                    ToggleButton:
+                        id: explore_mode_toggle
+                        text: app.get_translations('Explore Mode: ') + ('ON' if root.explore_mode else 'OFF')
+                        size_hint_x: None
+                        width: dp(630)
+                        pos_hint: {'center_x': .5}
+                        size_hint_y: None
+                        height: dp(50)
+                        on_state: root.toggle_explore_mode(self.state)
 
-                Button:
-                    text: 'View Terms of Service'
-                    color: 1, 1, 1, 1  # Black text
-                    background_normal: ''
-                    background_color: [0.9, 0.5, 0.2, 1]
-                    size_hint_y: None
-                    height: 60
-                    font_size: '14sp'
-                    bold: True
-                    on_release: root.manager.current = 'terms'
+                    MDRaisedButton:
+                        text: app.get_translations('View Terms of Service')
+                        md_bg_color: 0.9, 0.5, 0.2, 1
+                        size_hint_x: None
+                        width: dp(630)
+                        pos_hint: {'center_x': .5}
+                        size_hint_y: None
+                        height: dp(50)
+                        on_release: root.manager.current = 'terms'
 
-                Button:
-                    text: 'View Privacy Policy'
-                    color: 1, 1, 1, 1  # Black text
-                    background_normal: ''
-                    background_color: [0.9, 0.5, 0.2, 1]
-                    size_hint_y: None
-                    height: 60
-                    font_size: '14sp'
-                    bold: True
-                    on_release: root.manager.current = 'privacy'
+                    MDRaisedButton:
+                        text: app.get_translations('View Privacy Policy')
+                        md_bg_color: 0.9, 0.5, 0.2, 1
+                        size_hint_x: None
+                        width: dp(630)
+                        pos_hint: {'center_x': .5}
+                        size_hint_y: None
+                        height: dp(50)
+                        on_release: root.manager.current = 'privacy'
 
-                # Rating Section
-                Label:
-                    text: 'Rate Our App'
-                    font_size: '18sp'
-                    bold: True
-                    size_hint_y: None
-                    height: 40
-                    color: 0, 0, 0, 1  # Black text
-
-                BoxLayout:
-                    size_hint_y: None
-                    height: 60
-                    spacing: 5
-
-                    Button:
-                        text: '1'
-                        color: 1, 1, 1, 1  # White text
-                        background_color: 0.2, 0.6, 1, 1  # Blue
-                        font_size: '14sp'
+                    # Rate Our App
+                    Label:
+                        text: app.get_translations('Rate Our App')
+                        font_size: '18sp'
                         bold: True
-                        on_release: root.rate_app(1)
+                        size_hint_y: None
+                        height: dp(30)
+                        halign: 'center'
 
-                    Button:
-                        text: '2'
-                        color: 1, 1, 1, 1  # White text
-                        background_color: 0.2, 0.6, 1, 1  # Blue
-                        font_size: '14sp'
+                    BoxLayout:
+                        spacing: dp(10)
+                        size_hint_y: None
+                        height: dp(50)
+
+                        Button:
+                            text: '1'
+                            on_release: root.rate_app(1)
+                        Button:
+                            text: '2'
+                            on_release: root.rate_app(2)
+                        Button:
+                            text: '3'
+                            on_release: root.rate_app(3)
+                        Button:
+                            text: '4'
+                            on_release: root.rate_app(4)
+                        Button:
+                            text: '5'
+                            on_release: root.rate_app(5)
+
+                    # Feedback
+                    Label:
+                        text: app.get_translations('Feedback')
+                        font_size: '18sp'
                         bold: True
-                        on_release: root.rate_app(2)
+                        size_hint_y: None
+                        height: dp(30)
+                        halign: 'center'
 
-                    Button:
-                        text: '3'
-                        color: 1, 1, 1, 1  # White text
-                        background_color: 0.2, 0.6, 1, 1  # Blue
-                        font_size: '14sp'
-                        bold: True
-                        on_release: root.rate_app(3)
+                    TextInput:
+                        id: feedback_input
+                        hint_text: app.get_translations('Describe any issues or suggestions...')
+                        size_hint_x: None
+                        width: dp(630)
+                        pos_hint: {'center_x': .5}
+                        size_hint_y: None
+                        height: dp(100)
+                        multiline: True
 
-                    Button:
-                        text: '4'
-                        color: 1, 1, 1, 1  # White text
-                        background_color: 0.2, 0.6, 1, 1  # Blue
-                        font_size: '14sp'
-                        bold: True
-                        on_release: root.rate_app(4)
+                    MDRaisedButton:
+                        text: app.get_translations('Submit Feedback')
+                        md_bg_color: 0.2, 0.6, 1, 1
+                        size_hint_x: None
+                        width: dp(630)
+                        pos_hint: {'center_x': .5}
+                        size_hint_y: None
+                        height: dp(50)
+                        on_release: root.submit_feedback()
 
-                    Button:
-                        text: '5'
-                        color: 1, 1, 1, 1  # White text
-                        background_color: 0.2, 0.6, 1, 1  # Blue
-                        font_size: '14sp'
-                        bold: True
-                        on_release: root.rate_app(5)
-
-                # Feedback Section
-                Label:
-                    text: 'Feedback'
-                    font_size: '18sp'
-                    bold: True
-                    size_hint_y: None
-                    height: 40
-                    color: 0, 0, 0, 1  # Black text
-
-                TextInput:
-                    id: feedback_input
-                    hint_text: 'Describe any issues or suggestions...'
-                    size_hint_y: None
-                    height: 100
-                    multiline: True
-                    background_color: 1, 1, 1, 1
-                    foreground_color: 0, 0, 0, 1  # Black text
-                    font_size: '14sp'
-
-                Button:
-                    text: 'Submit Feedback'
-                    color: 1, 1, 1, 1  # White text
-                    background_color: 0.2, 0.6, 1, 1  # Blue
-                    size_hint_y: None
-                    height: 60
-                    font_size: '14sp'
-                    bold: True
-                    on_release: root.submit_feedback()
+        # ── Floating blue Back button on top ─────────────────────────────
+        MDRaisedButton:
+            text: app.get_translations('Back')
+            md_bg_color: 0.2, 0.6, 1, 1
+            size_hint: None, None
+            size: dp(80), dp(30)
+            pos_hint: {'x': .02, 'top': .98}
+            on_release: root.go_back()
