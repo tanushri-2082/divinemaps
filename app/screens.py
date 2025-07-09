@@ -3,23 +3,40 @@
 import hashlib
 from datetime import datetime
 from mysql.connector import Error
-from kivy.app import App
-from kivy.uix.screenmanager import Screen
-from kivy.uix.label import Label
-from kivy.clock import Clock
 from kivy.resources import resource_find
 from kivy.properties import BooleanProperty
-from kivy.uix.popup import Popup
 from kivy.uix.textinput import TextInput
 from kivymd.uix.label import MDIcon
-from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.scrollview import ScrollView
-from kivy.uix.button import Button
 from kivymd.app import MDApp
-from kivymd.uix.pickers.datepicker import MDDatePicker
+from kivymd.uix.pickers import MDDatePicker
 from kivymd.uix.menu import MDDropdownMenu
 from .religion_data import RELIGION_CONTENT
 from .data_manager import update_username
+from kivy.uix.screenmanager import Screen
+from kivy_garden.mapview import MapView, MapMarkerPopup
+from kivy.clock import Clock
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.popup import Popup
+import requests
+from kivy.uix.screenmanager import Screen
+from .data_manager import get_user_by_id
+from kivy.uix.screenmanager import ScreenManager
+from kivy_garden.mapview import MapView, MapMarkerPopup
+from kivy.clock import Clock
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.popup import Popup
+from kivymd.uix.button import MDRaisedButton
+from kivy.metrics import dp
+import requests
+from .data_manager import get_user_by_id
+
 from .data_manager import (
     fetch_all_sites,
     register_user,
@@ -1002,3 +1019,139 @@ class HelpScreen(Screen):
     def go_back(self):
         self.manager.transition.direction = 'right'
         self.manager.current = 'login'
+
+class MapsScreen(Screen):
+    def on_enter(self):
+        print("✅ MapsScreen loaded")
+        self.load_sites()
+        Clock.schedule_once(self.show_map, 0.1)
+
+        app = App.get_running_app()
+        if hasattr(app, 'selected_site') and app.selected_site:
+            site = app.selected_site
+            self.center_lat = site['latitude']
+            self.center_lon = site['longitude']
+            self.zoom_level = 15
+            app.selected_site = None
+        else:
+            self.center_lat = 12.9716  # Default: Bengaluru
+            self.center_lon = 77.5946
+            self.zoom_level = 10
+
+    def show_map(self, *args):
+        print("🗺️ Rendering MapView inside MapsScreen")
+        self.ids.mapbox.clear_widgets()
+
+        mapview = MapView(
+            zoom=self.zoom_level,
+            lat=self.center_lat,
+            lon=self.center_lon
+        )
+        self.mapview = mapview
+        self.ids.mapbox.add_widget(mapview)
+
+        for site in self.sites:
+            marker = MapMarkerPopup(lat=site['latitude'], lon=site['longitude'])
+            marker.site_data = site
+            marker.bind(on_release=self.show_popup)
+            mapview.add_widget(marker)
+
+    def load_sites(self):
+        try:
+            app = App.get_running_app()
+            user = get_user_by_id(app.current_user_id) if hasattr(app, 'current_user_id') and app.current_user_id else None
+            religion = user.get('religion', 'No Preference') if user else 'No Preference'
+            response = requests.get(f"http://127.0.0.1:5000/get_sites?religion={religion}")
+            self.sites = response.json()
+        except Exception as e:
+            print(f"Error fetching markers: {e}")
+            self.sites = []
+
+    def show_popup(self, marker):
+        site = marker.site_data
+        content = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        content.add_widget(Label(text=f"[b]{site['name']}[/b]", markup=True))
+        content.add_widget(Label(text=f"Religion: {site.get('religion', 'N/A')}"))
+        content.add_widget(Label(text=f"Address: {site.get('address', 'N/A')}"))
+        content.add_widget(Button(text="View Details", on_release=lambda x: self.go_to_details(site)))
+        popup = Popup(
+            title=site['name'],
+            content=content,
+            size_hint=(0.7, 0.4)
+        )
+        popup.open()
+
+    def go_to_details(self, site):
+        app = App.get_running_app()
+        app.selected_site = site
+        self.manager.current = 'site_detail'
+
+    def go_back(self):
+        self.manager.transition.direction = 'right'
+        self.manager.current = 'home'
+
+
+class TempleSelectionScreen(Screen):
+    def on_enter(self):
+        print("✅ TempleSelectionScreen loaded")
+        self.load_temples()
+
+    def load_temples(self):
+        try:
+            # Fetch 4 temples from the Flask API
+            app = App.get_running_app()
+            user = get_user_by_id(app.current_user_id) if hasattr(app, 'current_user_id') and app.current_user_id else None
+            religion = user.get('religion', 'No Preference') if user else 'No Preference'
+            response = requests.get(f"http://127.0.0.1:5000/get_sites?religion={religion}&limit=4")
+            temples = response.json()
+            self.display_temples(temples)
+        except Exception as e:
+            print(f"Error fetching temples: {e}")
+            self.ids.temple_grid.clear_widgets()
+
+    def display_temples(self, temples):
+        grid = self.ids.temple_grid
+        grid.clear_widgets()
+        for temple in temples:
+            button = MDRaisedButton(
+                text=temple['name'],
+                size_hint=(None, None),
+                size=(200, 80),
+                on_release=lambda x, t=temple: self.go_to_details(t)
+            )
+            grid.add_widget(button)
+
+    def go_to_details(self, temple):
+        app = App.get_running_app()
+        app.selected_site = temple
+        self.manager.current = 'site_detail'
+
+class SiteDetailScreen(Screen):
+    def on_enter(self):
+        print("✅ SiteDetailScreen loaded")
+        self.display_details()
+
+    def display_details(self):
+        app = App.get_running_app()
+        site = app.selected_site if hasattr(app, 'selected_site') and app.selected_site else {}
+        content_label = self.ids.site_content
+        if site:
+            details = (
+                f"[b]Name:[/b] {site.get('name', 'N/A')}\n"
+                f"[b]Religion:[/b] {site.get('religion', 'N/A')}\n"
+                f"[b]Address:[/b] {site.get('address', 'N/A')}\n"
+                f"[b]Description:[/b] {site.get('description', 'N/A')}\n"
+                f"[b]Latitude:[/b] {site.get('latitude', 'N/A')}\n"
+                f"[b]Longitude:[/b] {site.get('longitude', 'N/A')}"
+            )
+            content_label.text = details
+        else:
+            content_label.text = "No site selected."
+
+    def navigate_to_map(self):
+        self.manager.current = 'maps'
+
+class SiteListScreen(Screen):
+    def go_back(self):
+        self.manager.transition.direction = 'right'
+        self.manager.current = 'home'

@@ -1,0 +1,26 @@
+# ui/site_detail.kv
+<SiteDetailScreen>:
+    name: "site_detail"
+    BoxLayout:
+        orientation: "vertical"
+        MDTopAppBar:
+            title: "Site Details"
+            left_action_items: [["arrow-left", lambda x: setattr(root.manager, 'current', 'site_list')]]
+            elevation: 10
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+            MDLabel:
+                id: site_content
+                text: ""
+                markup: True
+                size_hint_y: None
+                height: self.texture_size[1]
+                padding: dp(20)
+                font_size: '16sp'
+        MDRaisedButton:
+            text: "Navigate to Map"
+            size_hint: None, None
+            size: dp(200), dp(50)
+            pos_hint: {'center_x': 0.5}
+            on_release: root.navigate_to_map()

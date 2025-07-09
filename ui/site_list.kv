@@ -1,0 +1,12 @@
+<SiteListScreen>:
+    name: "site_list"
+    BoxLayout:
+        orientation: "vertical"
+        MDTopAppBar:
+            title: "Sacred Sites"
+            left_action_items: [["arrow-left", lambda x: setattr(root.manager, 'current', 'home')]]
+            elevation: 10
+
+        ScrollView:
+            MDList:
+                id: site_list

@@ -1,7 +1,6 @@
 # main.py
-
-from app.app import DivineMapsApp
 from kivy.config import Config
+from app.app import DivineMapsApp
 
 if __name__ == '__main__':
     # Set full screen configuration
@@ -10,5 +9,3 @@ if __name__ == '__main__':
     Config.write()
 
     DivineMapsApp().run()
-
-

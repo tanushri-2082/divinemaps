@@ -1,0 +1,21 @@
+# ui/temple_selection.kv
+#:import MDRaisedButton kivymd.uix.button.MDRaisedButton
+#:import MDGridLayout kivymd.uix.gridlayout.MDGridLayout
+#:import dp kivy.metrics.dp
+
+<TempleSelectionScreen>:
+    name: 'temple_selection'
+    BoxLayout:
+        orientation: 'vertical'
+        MDTopAppBar:
+            title: 'Select a Temple'
+            left_action_items: [['arrow-left', lambda x: setattr(root.manager, 'current', 'home')]]
+            elevation: 10
+        ScrollView:
+            MDGridLayout:
+                id: temple_grid
+                cols: 2
+                spacing: dp(20)
+                padding: dp(20)
+                size_hint_y: None
+                height: self.minimum_height

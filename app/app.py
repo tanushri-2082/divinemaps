@@ -3,12 +3,14 @@ import yaml
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager
 from kivymd.app import MDApp
+from kivy.uix.screenmanager import Screen
 
 # Import all your screens in one go
 from .screens import (
     LoginScreen, SignUpScreen, DetailsScreen, TermsScreen,
     PrivacyScreen, ForgotPasswordScreen, GuestScreen,
-    HomeScreen, SettingsScreen, ReligionScreen, HelpScreen
+    HomeScreen, SettingsScreen, ReligionScreen, HelpScreen,
+    MapsScreen, SiteDetailScreen, SiteListScreen, TempleSelectionScreen
 )
 
 class DivineMapsApp(MDApp):
@@ -64,12 +66,12 @@ class DivineMapsApp(MDApp):
 
         # Load all your .kv files, including help.kv
         for name in (
-            'login', 'signup', 'details', 'terms', 'privacy',
-            'forgot', 'home', 'guest', 'settings', 'religion', 'help'
+                'login', 'signup', 'details', 'terms', 'privacy',
+                'forgot', 'home', 'guest', 'settings', 'religion', 'help',
+                'maps', 'site_detail', 'site_list', 'temple_selection'
         ):
             Builder.load_file(os.path.join(kv_dir, f"{name}.kv"))
 
-        # Create and register all screens
         sm = ScreenManager()
         sm.add_widget(LoginScreen(name='login'))
         sm.add_widget(SignUpScreen(name='signup'))
@@ -82,4 +84,8 @@ class DivineMapsApp(MDApp):
         sm.add_widget(SettingsScreen(name='settings'))
         sm.add_widget(ReligionScreen(name='religion'))
         sm.add_widget(HelpScreen(name='help'))
+        sm.add_widget(MapsScreen(name='maps'))
+        sm.add_widget(SiteDetailScreen(name='site_detail'))
+        sm.add_widget(SiteListScreen(name='site_list'))
+        sm.add_widget(TempleSelectionScreen(name='temple_selection'))
         return sm

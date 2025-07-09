@@ -1,5 +1,7 @@
 # ui/home.kv
 #:import MDRaisedButton kivymd.uix.button.MDRaisedButton
+#:import MDIcon kivymd.uix.label.MDIcon
+#:import MDBoxLayout kivymd.uix.boxlayout.MDBoxLayout
 #:import dp kivy.metrics.dp
 
 <HomeScreen>:
@@ -7,8 +9,7 @@
     FloatLayout:
         Image:
             source: 'data/bg.jpg'
-            allow_stretch: True
-            keep_ratio: False
+            fit_mode: 'cover'
             opacity: 0.3
             size: root.size
             pos: root.pos
@@ -17,14 +18,13 @@
         orientation: 'vertical'
         size_hint: None, None
         size: dp(170), dp(170)
-        pos_hint: {"center_x": 0.5, "center_y":0.7}
+        pos_hint: {"center_x": 0.5, "center_y": 0.7}
         padding: dp(10)
 
         Image:
             source: "data/logo.jpg"
+            fit_mode: 'contain'
             size_hint: 1, 1
-            allow_stretch: True
-            keep_ratio: True
 
     MDBoxLayout:
         orientation: 'vertical'
@@ -36,13 +36,13 @@
             font_style: "H5"
             size_hint_y: None
             height: dp(60)
+            padding: [0, dp(10)]
 
         MDTopAppBar:
             title: "Divine Maps"
             elevation: 10
             left_action_items: [['menu', lambda x: app.root.get_screen('home').show_user_profile()]]
-            right_action_items: [['cog', root.go_to_settings]]
-
+            right_action_items: [['cog', lambda x: root.go_to_settings()]]
 
         MDBoxLayout:
             orientation: 'vertical'
@@ -60,7 +60,7 @@
                 width: dp(500)
 
                 MDRaisedButton:
-                    on_release: root.manager.current = 'map'
+                    on_release: root.manager.current = 'temple_selection'  # Changed to 'temple_selection'
                     size_hint: None, None
                     size: dp(250), dp(80)
                     MDBoxLayout:
@@ -75,7 +75,7 @@
                             halign: "center"
 
                 MDRaisedButton:
-                    on_release: root.go_to_favorites()
+                    on_release: root.go_to_favorites
                     size_hint: None, None
                     size: dp(250), dp(80)
                     MDBoxLayout:
@@ -90,7 +90,7 @@
                             halign: "center"
 
                 MDRaisedButton:
-                    on_release: root.go_to_planner()
+                    on_release: root.go_to_planner
                     size_hint: None, None
                     size: dp(250), dp(80)
                     MDBoxLayout:
@@ -105,7 +105,7 @@
                             halign: "center"
 
                 MDRaisedButton:
-                    on_release: root.go_to_log()
+                    on_release: root.go_to_log
                     size_hint: None, None
                     size: dp(250), dp(80)
                     MDBoxLayout:
@@ -125,7 +125,7 @@
                 size_hint: None, None
                 size: dp(200), dp(50)
                 pos_hint: {'center_x': 0.5}
-                on_release: root.go_to_settings()
+                on_release: root.go_to_settings
 
             MDRaisedButton:
                 text: "Logout"
@@ -137,5 +137,3 @@
                 on_release:
                     app.current_user_id = None
                     root.manager.current = 'login'
-
-
