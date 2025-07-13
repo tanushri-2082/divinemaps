@@ -40,7 +40,7 @@ class DataManager:
             return {
                 "success": True,
                 "affected_rows": cursor.rowcount,
-                "lastrowid": cursor.lastrowid  # ✅ This is needed
+                "lastrowid": cursor.lastrowid
           }
 
         except IntegrityError as e:
@@ -53,7 +53,6 @@ class DataManager:
             if conn and conn.is_connected():
                 conn.close()
 
-    # Site-related operations
     @staticmethod
     def fetch_all_sites():
         query = "SELECT * FROM sites ORDER BY name"
@@ -173,10 +172,10 @@ class DataManager:
             updates.append("religion = %s")
             params.append(religion)
 
-        if not updates:  # Nothing to update
+        if not updates:
             return {"success": False, "error": "No fields to update"}
 
-        params.append(user_id)  # Always add user_id at the end for WHERE clause
+        params.append(user_id)
         query = f"UPDATE users SET {', '.join(updates)} WHERE user_id = %s"
 
         result = DataManager._execute_update(query, params)

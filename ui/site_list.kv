@@ -1,12 +1,15 @@
+# ui/site_list.kv
+
 <SiteListScreen>:
-    name: "site_list"
+    name: 'site_list'
+
     BoxLayout:
-        orientation: "vertical"
+        orientation: 'vertical'
+
         MDTopAppBar:
-            title: "Sacred Sites"
-            left_action_items: [["arrow-left", lambda x: setattr(root.manager, 'current', 'home')]]
-            elevation: 10
+            title: "Select a Temple"
+            left_action_items: [['arrow-left', lambda x: setattr(app.root, 'current', 'home')]]
 
         ScrollView:
             MDList:
-                id: site_list
+                id: sites_container
